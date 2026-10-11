@@ -138,6 +138,10 @@ def report(root, name, save_diff=False):
         raise ValueError(f"No port map for {name}")
     incoming = files(root / "upstream" / name / "skills")
     rows = []
+    license_path = read_json(root / 'sources.json')[name].get('license', 'LICENSE')
+    license_file = root / 'upstream' / name / license_path
+    if policy.get('license_sha256') and hashlib.sha256(license_file.read_bytes()).hexdigest() != policy['license_sha256']:
+        rows.append(f'| `{license_path}` | changed | Review copyright and licensing; merge the notice and regenerate bundles |')
     for path in sorted(incoming.keys() | policy["files"].keys()):
         entry = policy["files"].get(path, {})
         if "upstream_sha256" not in entry and path not in incoming:
@@ -179,8 +183,8 @@ def report(root, name, save_diff=False):
         with tempfile.TemporaryDirectory() as temporary:
             old = Path(temporary) / "base"
             fetch(source(root, name), old, base["commit"])
-            result = run("git", "diff", "--no-index", "--", str(old / "skills"),
-                         str(root / "upstream" / name / "skills"), check=False)
+            result = run("git", "diff", "--no-index", "--", str(old),
+                         str(root / "upstream" / name), check=False)
             if result.returncode not in (0, 1):
                 raise RuntimeError(result.stderr.decode())
             diff_path = root / ".work" / f"{name}-upstream.diff"
@@ -202,6 +206,9 @@ def adopt_hashes(root, name):
             entry["upstream_sha256"] = hashlib.sha256(incoming[path]).hexdigest()
         else:
             entry.pop("upstream_sha256", None)
+    if 'license_sha256' in policy:
+        license_path = read_json(root / 'sources.json')[name].get('license', 'LICENSE')
+        policy['license_sha256'] = hashlib.sha256((root / 'upstream' / name / license_path).read_bytes()).hexdigest()
     write_json(root / "ports" / f"{name}.json", policy)
 
 

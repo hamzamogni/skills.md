@@ -52,7 +52,8 @@ decision-log shell helper remains.
 
 ## Updating the T3 or p3 reference
 
-Cursor pstack is the only automatic feed. p3 and T3 are pinned references. Review
+For this pack, Cursor pstack is the automatic feed. Matt and shadcn have separate
+source feeds. p3 and T3 are pinned references. Review
 them manually after a T3 behavior change or when adopting a p3 improvement.
 
 Refresh tool names from a clean T3 source checkout into a candidate:

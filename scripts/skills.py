@@ -70,8 +70,9 @@ def fetch(config, destination, ref=None):
                 if member.name.startswith("/") or ".." in parts or not (member.isfile() or member.isdir()):
                     raise ValueError(f"Unsupported archive entry: {member.name}")
             tar.extractall(destination, members=members)
-    if not (destination / "LICENSE").is_file():
-        raise ValueError("Imported packs must include a LICENSE file")
+    license_path = Path(config.get("license", "LICENSE"))
+    if license_path.is_absolute() or ".." in license_path.parts or not (destination / license_path).is_file():
+        raise ValueError("Imported packs must include their configured license file")
     return {"commit": commit, "tree": tree}
 
 
@@ -167,7 +168,7 @@ def initialize(root, name):
     shutil.copytree(upstream / "skills", pack)
     for path, data in transform(files(pack), name).items():
         (pack / path).write_bytes(data)
-    shutil.copyfile(upstream / "LICENSE", pack / "LICENSE")
+    shutil.copyfile(upstream / source(root, name).get("license", "LICENSE"), pack / "LICENSE")
     lock_path = root / "adaptations.lock.json"
     lock = read_json(lock_path) if lock_path.exists() else {}
     lock[name] = read_json(root / "sources.lock.json")[name]
@@ -211,8 +212,10 @@ def merge(root, name, continuing=False):
         old = Path(temporary) / "old"
         fetch(config, old, state["commit"])
         base = map_contents(transform(files(old / "skills"), name), policy)
+        base["LICENSE"] = (old / config.get("license", "LICENSE")).read_bytes()
     ours = files(pack)
     theirs = map_contents(transform(files(root / "upstream" / name / "skills"), name), policy)
+    theirs["LICENSE"] = (root / "upstream" / name / config.get("license", "LICENSE")).read_bytes()
     output, conflicts = dict(ours), []
     for path in sorted(base.keys() | theirs.keys()):
         if policy is not None and excluded(policy, original_path(policy, path)):

@@ -10,6 +10,12 @@ Read the [T3 runtime contract](references/t3-runtime.md) before executing this s
 
 Skills are invoked by name (`/poteto-mode`). There are no mode toggles.
 
+For UI work in a project using or adopting shadcn/ui, read the installed `shadcn`
+skill through its catalog path before choosing components or changing UI code.
+It supplies UI guidance to the selected engineering route. Keep one builder and
+verify the result in the running app. Adopting shadcn in an app with another
+component system must be part of the user's task.
+
 ## Non-negotiables
 
 The Principles section below grounds every trigger. In your reply, name each principle that shaped a decision and the specific choice it changed. Cite only principles whose leaf SKILL.md you read this session.
