@@ -1,0 +1,9 @@
+{
+  "pstack": {
+    "url": "https://github.com/cursor/plugins.git",
+    "web_url": "https://github.com/cursor/plugins",
+    "branch": "main",
+    "path": "pstack",
+    "reviewer": "hamzamogni"
+  }
+}
