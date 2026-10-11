@@ -1,13 +1,14 @@
 # Working in skills.md
 
 Edit personal skills under `skills/<name>`, pstack under `skills/pstack/<name>`,
-and Matt's pack under `skills/matt-pocock/{engineering,productivity}/<name>`.
+Matt's pack under `skills/matt-pocock/{engineering,productivity}/<name>`,
+and shadcn under `skills/shadcn-ui/shadcn`.
 Read `docs/combined-workflow.md` for the one-pager names and local helpers. Do not edit `upstream/` by hand. Import changes with
 `python3 scripts/skills.py sync pstack` and merge them into the adapted copy with
 `python3 scripts/skills.py merge pstack`. Read `docs/upstream-updates.md` and
 `docs/t3-port.md` before porting an update. Generate `report pstack --diff`, review
 native mappings, then run `merge pstack --continue` even after a clean text merge.
-Use `matt-pocock` in place of `pstack` for Matt's updates. Commit the editable
+Use `matt-pocock` or `shadcn-ui` in place of `pstack` for their updates. Commit the editable
 pack, map, and adaptation lock together. Run `python3 scripts/package_skills.py build`
 before acceptance when shared guidance or notices change. Edit the source paths in
 `bundles.json`, then regenerate per-skill copies. Keep original upstream paths in map keys;
@@ -33,3 +34,8 @@ Keep upstream copyright notices. Do not execute newly imported scripts as part
 of an update or packaging check. Do not merge update PRs automatically. Keep native runtime
 corrections when adopting p3 reference changes. Verify changed skills in the
 actual T3 provider before claiming live runtime support.
+
+Shadcn guidance belongs inside the current UI phase, with one builder. Preserve
+existing themes and customized components. Treat component updates as application
+changes, separate from updates to this skill. Review `LICENSE.md` changes and
+regenerate notices before accepting a shadcn port. Keep evaluation fixtures raw-only.

@@ -20,6 +20,13 @@ symlinks. Do not assume the installed files retain repository category folders.
 If the required skill is missing, report it and the full-collection install command
 instead of inventing its workflow.
 
+For a UI prototype, implementation, or UI review in a project using or adopting
+shadcn/ui, also read the installed `shadcn` skill through its catalog path. It
+supplies UI guidance within the selected phase. Preserve the phase's handback
+and use one builder. Carry agreed interactions, UI states, and design decisions
+into the spec and self-contained tickets. Do not add shadcn to an existing app
+using another component system unless adopting it is part of the user's task.
+
 | Situation | Phase to run |
 | --- | --- |
 | Unclear product decisions with a project | `grill-with-docs` |

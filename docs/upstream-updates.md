@@ -1,6 +1,7 @@
 # Review and merge an update
 
-GitHub Actions checks `cursor/plugins/pstack` and Matt Pocock's selected `skills/` plus `LICENSE` content every six hours, with one separate PR per source. A changed
+GitHub Actions checks Cursor's `pstack`, Matt's `skills/` plus `LICENSE`, and
+shadcn's `skills/shadcn` plus `LICENSE.md` every six hours, with one separate PR per source. A changed
 subtree opens one review-request PR. It updates the raw snapshot and its lock,
 leaving your editable skills alone. It never auto-merges. Email depends on your
 GitHub review-request notification settings. Run **Actions → Check upstream
@@ -13,7 +14,8 @@ checkout, or commit your current edits first.
 
 The examples below use `pstack`. For Matt's pack, replace every source argument
 with `matt-pocock`, use `skills/matt-pocock`, and commit `ports/matt-pocock.json`.
-Both packs use the same approval and acceptance steps.
+For shadcn, use `shadcn-ui`, `skills/shadcn-ui`, and `ports/shadcn-ui.json`.
+All three packs use the same approval and acceptance steps.
 
 From the skills.md checkout:
 
@@ -25,8 +27,9 @@ python3 scripts/skills.py report pstack --diff
 Read `.work/pstack-update.md` and `.work/pstack-upstream.diff`. The report lists
 changed, added, deleted, and excluded files since the last accepted port. The diff
 shows the original upstream changes since your adaptation base, including updates
-you deferred. These reports are local and ignored by Git. Inspect the PR diff for
-README and license changes too; the report covers the upstream `skills` directory.
+you deferred. These reports are local and ignored by Git. The full diff includes
+all selected source content, including licenses. The table covers skill files
+and the tracked shadcn license hash. Inspect the PR diff for other source metadata.
 
 The upstream comparison link can include other Cursor plugins; this PR imports
 only that source's selected content. Do not edit `upstream/<source>` or execute its downloaded scripts.
@@ -71,9 +74,13 @@ and `tdd` map to `poteto-teach` and `poteto-tdd`. Use the mappings in
   not permission to merge.
 - New files that need a port, and deletions that leave broken links. Renames
   behave as add/delete, so inspect both paths and transfer local edits yourself.
-- License changes and useful behavior hidden in excluded Cursor scripts. Carry
-  new notices into the editable pack manually, preserving any existing notices;
-  the skill-file merge does not merge the top-level license.
+- License changes and useful behavior hidden in excluded scripts or fixtures.
+  The merge includes the source license as the editable pack's `LICENSE`.
+  Preserve existing attribution when resolving notice conflicts, then regenerate
+  per-skill bundles. The raw shadcn notice retains its `LICENSE.md` filename.
+- Shadcn command injection, command allowlists, MCP assumptions, and CLI/API changes.
+  Preserve the explicit T3 project-inspection step and review preset behavior.
+  Updating guidance does not authorize updating application components or themes.
 
 For a new file, edit its T3 version, then classify the upstream-relative path:
 

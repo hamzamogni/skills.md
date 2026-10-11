@@ -1,8 +1,8 @@
 # Use the combined workflow in T3 Code
 
 This collection implements the workflow in your skills one-pager, using pstack,
-Matt Pocock's published engineering/productivity pack, and three local helpers.
-It contains 82 installed skills: 52 pstack, 27 Matt, and `matt-mode`, `code-review`,
+Matt Pocock's published engineering/productivity pack, shadcn UI guidance, and three local helpers.
+It contains 83 installed skills: 52 pstack, 27 Matt, `shadcn`, and `matt-mode`, `code-review`,
 and `deslop`. Upstream snapshots and update decisions stay separate from the
 editable instructions.
 
@@ -16,7 +16,7 @@ npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex
 
 For Claude in T3, use `--agent claude-code`, or `--agent codex claude-code` for both.
 Use Node.js 22.20 or newer and authenticated Git, `gh`, or SSH access to this private
-repository. The normal discovery finds 82 adapted skills. Avoid `--full-depth`,
+repository. The normal discovery finds 83 adapted skills. Avoid `--full-depth`,
 which can search the raw upstream snapshots too. Install the full collection;
 individual skills can depend on other installed skills. Restart the agent session. Select skills
 with `$`, or with `/` when T3's **Show skills in slash menu** setting is enabled.
@@ -98,6 +98,14 @@ then hand the self-contained ticket to `poteto-mode`. Another is Matt's
 `implement` with Matt's TDD, followed by pstack's independent review tools.
 Do not run competing builders in the same checkout.
 
+For a UI prototype, implementation, or UI review in a project using or adopting
+shadcn/ui, the selected phase also loads the installed `shadcn` guidance. Inspect
+the actual project, reuse components, and read their docs before composing UI.
+Record loading, empty, error, keyboard, and responsive behavior in specs and tickets.
+Verify those states in the running app. Preserve existing themes and customized
+components. Shadcn is guidance for the chosen builder. See [UI workflows](shadcn-workflow.md)
+for greenfield setup, existing-app examples, and component update review.
+
 The sheet's front-door note says to use fresh sessions at each stage, while its
 footer says to keep stages 1–3 together. This setup preserves the interview through
 spec and tickets, then uses fresh sessions per self-contained implementation
@@ -160,9 +168,9 @@ keeps its existing Git subtree hash. Both compare content, not unrelated commits
 ## Maintain it yourself
 
 Read [the update guide](upstream-updates.md). Use source name `matt-pocock` for
-Matt's pack and `pstack` for poteto's. Each source gets its own six-hour check,
+Matt's pack, `pstack` for poteto's, and `shadcn-ui` for shadcn. Each source gets its own six-hour check,
 review-request PR, pending-port acceptance, and per-file map. The watcher becomes
-active for both packs on main.
+active for all configured packs once their source configuration is merged into main.
 
 Shared resource sources and destinations are declared in `bundles.json`. Edit the
 source runtime guides and pack licenses, then run `python3 scripts/package_skills.py build`.
