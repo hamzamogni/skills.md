@@ -3,7 +3,7 @@ name: research
 description: Research a question against primary sources and save cited Markdown notes, using a T3 background task when available.
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 Choose the notes path using the project's convention. Give one `delegate_task`
 a self-contained brief with the question, scope, primary-source requirements,

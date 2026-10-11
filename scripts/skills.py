@@ -271,6 +271,8 @@ def validate(root, allow_pending=False):
             raise ValueError(f"Duplicate skill names: {name[1]} in {seen_names[name[1]]} and {path}")
         seen_names[name[1]] = path
     print("Skill names, descriptions, and merge state are valid")
+    from package_skills import check
+    check(root)
     from porting import audit
     for policy in sorted((root / "ports").glob("*.json")):
         if policy.name == "t3-tools.json":

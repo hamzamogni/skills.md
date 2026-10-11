@@ -13,19 +13,28 @@ See [the combined workflow](docs/combined-workflow.md) for the one-pager setup,
 
 ## Use the skills in T3 Code
 
-Clone this repository on the machine running your T3 Code agent:
+From the project directory on the machine running your T3 Code agent:
 
 ```sh
-gh repo clone hamzamogni/skills.md
-cd skills.md
-python3 scripts/skills.py install --provider codex --project /absolute/path/to/your-project
+npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex
 ```
 
-For Claude, use `--provider claude`. Restart the agent session in T3 Code, then
-select `$poteto-mode`. The installer creates links in the project's `.agents/skills`
-for Codex or `.claude/skills` for Claude. Keep this checkout at the same path.
-Existing skills with the same name are preserved and cause installation to stop.
-Re-running installation adds missing links and leaves matching links alone.
+For Claude, use `--agent claude-code`. To install for both providers, use
+`--agent codex claude-code`. Restart the agent session in T3 Code, then select
+`$poteto-mode` or `$matt-mode`. Install the full collection because the modes call
+other skills. Do not use `--full-depth`, which also searches the raw snapshots.
+
+This private repository requires GitHub access through Git, authenticated `gh`,
+or SSH. The CLI requires Node.js 22.20 or newer. Codex receives project skills in
+`.agents/skills`; Claude receives them in `.claude/skills`. Runtime guidance and
+license notices are bundled inside the installed skills. No source checkout is
+needed to use them. Add `--global` for a deliberate user-wide installation.
+
+Installed skills are copies. After you approve and merge an upstream adaptation,
+run `npx skills@latest update -p` in the project to refresh its existing skills.
+Rerun the full `add` command to include newly added skills. The CLI can overwrite
+same-named installed skills; move any personal edits into this repository first.
+See [installation and migration](docs/combined-workflow.md#install-and-set-up-a-project).
 
 The pstack pack keeps 52 skills and builds on
 [p3-stack's native T3 port](https://github.com/uzairansaruzi/p3-stack).
@@ -50,7 +59,11 @@ skills at `skills/<your-skill>/SKILL.md`, with `name` and `description` frontmat
 The install command includes both personal skills and imported packs.
 Skill names must be unique across the installed collection.
 
-Run `python3 scripts/skills.py validate` after edits.
+Run `python3 scripts/package_skills.py build` after changing shared guidance or
+license notices, then `python3 scripts/skills.py validate`. Edit the source files
+listed in `bundles.json`; generated per-skill copies must match those sources.
+The Python `install` command remains available for development links to a local
+checkout, where edits are reflected directly.
 
 ## Review upstream updates
 
@@ -82,11 +95,15 @@ Workflow permissions**. That setting is enabled during initial setup.
 | `sources.lock.json` | Commit and subtree hash of each imported snapshot |
 | `adaptations.lock.json` | Upstream revision used as each adaptation's merge base |
 | `ports/` | File mappings, accepted source hashes, and pinned T3 tool inventory |
+| `bundles.json` | Shared runtime guidance and notices copied into each skill |
 | `scripts/` | Import, three-way merge, validation, installation, and PR creation |
 
-Python 3.10 or newer and Git are required. Automated PR creation also uses GitHub
+Repository maintenance requires Python 3.10 or newer and Git. Automated PR creation also uses GitHub
 CLI, which is available on GitHub's Ubuntu runners. Run the behavior tests with
 `python3 -m unittest discover -s tests -v`.
+Run `python3 scripts/check_npx.py --codex-parser` for disposable CLI installs,
+file and link checks, migration from old checkout links, and Codex discovery.
+Omit `--codex-parser` when Codex is unavailable.
 
 Additional authors can be added to `sources.json` with a separate source name and
 an explicit subtree. Source packs must include a license. Import with

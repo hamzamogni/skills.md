@@ -1,0 +1,15 @@
+{
+  "skills/pstack": {
+    "skills/pstack/poteto-mode/references/t3-runtime.md": "references/t3-runtime.md",
+    "skills/pstack/poteto-mode/references/agents/poteto-agent.md": "references/agents/poteto-agent.md",
+    "skills/pstack/LICENSE": "LICENSE"
+  },
+  "skills/matt-pocock": {
+    "skills/matt-pocock/t3-runtime.md": "references/t3-runtime.md",
+    "skills/matt-pocock/LICENSE": "LICENSE"
+  },
+  "skills/matt-mode": {
+    "skills/matt-pocock/t3-runtime.md": "references/t3-runtime.md",
+    "skills/matt-pocock/LICENSE": "references/matt-pocock-LICENSE"
+  }
+}

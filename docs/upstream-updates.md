@@ -94,6 +94,7 @@ relocate local edits between renamed files.
 Only after resolving conflicts and reviewing native behavior:
 
 ```sh
+python3 scripts/package_skills.py build
 python3 scripts/skills.py merge pstack --continue
 python3 scripts/skills.py validate
 python3 -m unittest discover -s tests -v
@@ -103,14 +104,17 @@ git diff
 `--continue` rejects unresolved markers, unmapped files, known Cursor remnants,
 excluded files reintroduced into the pack, unknown pinned tool names, and broken
 local Markdown links. It records the accepted hashes and clears pending state.
-It does not run T3 or certify that the wording is correct.
+It also rejects stale generated bundles and references that fail in the flat CLI
+installation. Edit the shared resource sources declared in `bundles.json`, then
+regenerate their per-skill copies. Do not resolve a generated resource by changing
+only one copy. The checks do not run T3 or certify that the wording is correct.
 
 Restart your T3 session and exercise changed workflows using the
 [smoke-check guide](t3-smoke.md). After further edits, validate again. Commit the
 editable pack, map, and adaptation lock together on the incoming PR branch:
 
 ```sh
-git add skills/pstack ports/pstack.json adaptations.lock.json
+git add skills ports/pstack.json adaptations.lock.json
 git commit -m "Port the pstack upstream update to T3"
 git push
 ```
@@ -119,6 +123,13 @@ Review the entire final diff and merge the PR when ready. Your push runs PR
 validation. The Actions token's initial PR creation does not trigger another
 Actions run, so a raw-only PR may have no new validation run. You can dispatch
 **Validate skills** manually on its branch.
+
+After landing the approved port, refresh copied installations from the target
+project with `npx skills@latest update -p`. Rerun
+`npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex` if new skills
+were added, or use `--agent claude-code` for Claude. Move any wanted installed edits
+into this repository before a refresh. Development links still reflect checkout
+edits directly. Raw-only deferred updates do not alter the published adapted skills.
 
 ## Defer, retry, or check locally
 

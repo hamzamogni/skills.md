@@ -4,8 +4,9 @@ Use these instructions with the engineering and productivity skills. Preserve th
 project's tracker, glossary, ADR, and document conventions from
 `setup-matt-pocock-skills`. Read installed `SKILL.md` files when a workflow names
 another skill. Prefer this project collection's source path over a same-named
-global installation. Inside this pack, resolve sibling skill paths from the current
-file before supplying their absolute paths to a child. A dedicated Skill tool is
+global installation. Use the catalog's actual absolute `SKILL.md` paths for other
+skills; repository categories are not part of the installed layout. Resolve bundled
+references relative to the file that names them before supplying absolute paths to a child. A dedicated Skill tool is
 not required or assumed.
 
 ## Native execution
@@ -58,7 +59,14 @@ local `code-review` helper hunts correctness bugs. Choose one builder per task,
 boundary. `ask-matt` recommends; local `matt-mode` runs one selected phase.
 
 T3 can show skills under `$`, and under `/` when "Show skills in slash menu" is
-on. Restart the agent session after changing installation. Installation and update
-instructions live in `docs/combined-workflow.md` and `docs/upstream-updates.md` in
+on. Restart the agent session after changing installation. Install with
+`npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex`
+from the target project, or `--agent claude-code` for Claude. Install the full
+collection because these workflows call other skills; the CLI does not infer those
+dependencies. After an approved repository update, run `npx skills@latest update -p`
+in the installed project. Installed copies do not track a source checkout live.
+The repository's Actions workflow still proposes upstream updates for human review;
+the CLI update refreshes installed copies from this repository's accepted main.
+Installation and update instructions live in `docs/combined-workflow.md` and `docs/upstream-updates.md` in
 the skills.md checkout. Runtime source inventory is pinned in `ports/t3-tools.json`;
 use the live tool schema when it differs.

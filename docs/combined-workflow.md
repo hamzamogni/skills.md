@@ -8,13 +8,17 @@ editable instructions.
 
 ## Install and set up a project
 
-After this PR is merged, clone or pull the repository, then:
+After the packaging PR is merged, run this from the target project directory:
 
 ```sh
-python3 scripts/skills.py install --provider codex --project /absolute/path/to/project
+npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex
 ```
 
-For Claude in T3, use `--provider claude`. Restart the agent session. Select skills
+For Claude in T3, use `--agent claude-code`, or `--agent codex claude-code` for both.
+Use Node.js 22.20 or newer and authenticated Git, `gh`, or SSH access to this private
+repository. The normal discovery finds 82 adapted skills. Avoid `--full-depth`,
+which can search the raw upstream snapshots too. Install the full collection;
+individual skills can depend on other installed skills. Restart the agent session. Select skills
 with `$`, or with `/` when T3's **Show skills in slash menu** setting is enabled.
 Use `$code-review` or `$deslop` if a provider also offers a built-in slash command
 with the same name. The guide uses slash names to match the one-pager; they are skills, not a guarantee
@@ -26,17 +30,44 @@ For a disposable smoke test, choose local Markdown so no real issue tracker is
 changed. `setup-pstack` optionally configures role models from live T3 capabilities.
 Missing roles inherit the parent model.
 
-The installer links actual editable directories, so edits are visible after an
-agent restart. Reinstall after adding skills or accepting an update. It migrates
-only declared old symlinks owned by this checkout. It refuses unrelated links or
-real directories with colliding names. Keep the checkout at the same path. If you
-already installed another copy of either pack globally, inspect duplicate skill
-names in T3 before using it; this installer does not manage that other copy.
+The CLI installs copies of skill folders, including bundled T3 guidance and license
+notices. Agent symlinks, when used, point to its installed canonical copy. The source
+checkout is not needed to use the skills. Edit your repository source to customize
+them; installed edits do not flow back into this repository. Before reinstalling or
+updating, move any wanted edits from installed copies into the repository. The CLI
+can replace same-named installed skills; it does not share the old Python installer's
+collision-refusal behavior.
+
+After approving and merging an upstream port, run `npx skills@latest update -p`
+in each installed project. Rerun the full `add` command when the collection gains
+new skills. For a deliberate global install, add `--global`; refresh that scope
+with `npx skills@latest update -g`. These commands refresh this repository's accepted
+skills, while GitHub Actions continues to propose original upstream changes for
+your decision.
+
+If this project's old Python installation linked back to this checkout, the CLI
+can replace those links with installed copies. The migration check verifies that
+the original checkout is untouched. Back up wanted changes and inspect the named
+targets first, especially when another collection owns those names.
+
+For repository development, the original link installer remains available:
+
+```sh
+python3 scripts/skills.py install --provider codex --project /absolute/path/to/project
+```
+
+That command keeps links to the editable checkout, refuses unrelated collisions,
+and migrates only declared old collection-owned aliases. Use `--provider claude`
+for Claude. Keep that checkout at the same path. Avoid mixing copy installs and
+development links without deliberately choosing which one should own the project.
+
+If you already installed another copy of either pack globally, inspect duplicate
+skill names in T3 before using it. A project install does not remove that global copy.
 The discovery check found an existing global p3 installation on this machine.
 Project skills have the intended collection paths, but same-named global entries
 are also listed. Select this collection's project entries. For a single global
 installation, deliberately remove or disable the older copy using its own install
-method after checking its links; this PR does not change that external checkout.
+method after checking its links; this repository does not manage that external checkout.
 
 ## Start at the right place
 
@@ -131,7 +162,14 @@ keeps its existing Git subtree hash. Both compare content, not unrelated commits
 Read [the update guide](upstream-updates.md). Use source name `matt-pocock` for
 Matt's pack and `pstack` for poteto's. Each source gets its own six-hour check,
 review-request PR, pending-port acceptance, and per-file map. The watcher becomes
-active for Matt after this feature PR is merged into main.
+active for both packs on main.
+
+Shared resource sources and destinations are declared in `bundles.json`. Edit the
+source runtime guides and pack licenses, then run `python3 scripts/package_skills.py build`.
+The per-skill copies are generated. Validation checks their exact bytes and resolves
+Markdown references against the flat layout the CLI installs. New skills must link
+their local `references/t3-runtime.md`. Raw snapshots and accepted hashes retain
+their original paths, so packaging does not reset the upstream merge base.
 
 Adapted paths can differ from upstream paths. `ports/<source>.json` stores explicit
 `path_aliases` and `skill_aliases`; both merge inputs pass through the same name
@@ -154,9 +192,13 @@ never overwrite the live pack or map blindly. A diff exit code of 1 is normal.
 ## Check the actual T3 behavior
 
 The repository suite checks imports, alias-aware merges, exclusions, independent
-source PRs, collision-safe installation, and pending acceptance. Run `python3 scripts/check_discovery.py` to check the installed collection with
-Codex's actual parser. It starts no model turn and uses an isolated Codex home.
-Codex's real parser can discover all 82 skills. Those checks do not prove live T3 execution.
+source PRs, bundle drift, portable references, development-link installation, and
+pending acceptance. Run `python3 scripts/check_npx.py --codex-parser` for disposable
+real CLI installs into Codex and Claude projects, byte-for-byte file checks,
+reference checks, complete update locks, and migration from old checkout links.
+It also checks the copied Codex collection with its actual parser, starts no model
+turn, and uses an isolated Codex home. Omit `--codex-parser` if Codex is unavailable.
+These checks do not prove live T3 execution.
 
 Use [the T3 smoke guide](t3-smoke.md), and also check:
 

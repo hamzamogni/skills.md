@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check the installed collection with Codex's real parser, without a model turn."""
+import argparse
 import json
 import os
 from pathlib import Path
@@ -13,13 +14,21 @@ from skills import ROOT, install
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--project', type=Path, help='Check an existing Codex installation instead of creating developer links')
+    parser.add_argument('--output', type=Path, default=ROOT / '.work/codex-discovery.json')
+    args = parser.parse_args()
     expected_paths = {path.parent.name: path.resolve() for path in (ROOT / 'skills').rglob('SKILL.md')}
     expected = set(expected_paths)
     with tempfile.TemporaryDirectory() as temporary:
         scratch = Path(temporary)
-        project = scratch / 'project'
-        project.mkdir()
-        install(ROOT, project, 'codex')
+        if args.project:
+            project = args.project.resolve()
+            expected_paths = {name: (project / '.agents/skills' / name / 'SKILL.md').resolve() for name in expected}
+        else:
+            project = scratch / 'project'
+            project.mkdir()
+            install(ROOT, project, 'codex')
         codex_home = scratch / 'codex-home'
         codex_home.mkdir()
         env = {**os.environ, 'CODEX_HOME': str(codex_home)}
@@ -66,8 +75,8 @@ def main():
                 failures = [error for entry in result['data'] for error in entry.get('errors', [])]
                 if failures or expected - discovered or expected - correct_paths:
                     raise RuntimeError(f'Parser errors: {failures}; missing collection paths: {sorted(expected - correct_paths)}')
-                output = ROOT / '.work/codex-discovery.json'
-                output.parent.mkdir(exist_ok=True)
+                output = args.output
+                output.parent.mkdir(parents=True, exist_ok=True)
                 output.write_text(json.dumps(result, indent=2) + '\n')
                 print(f'Codex discovered all {len(expected)} collection skills without parsing errors. Saved {output}')
                 duplicates = sorted({skill['name'] for entry in result['data'] for skill in entry['skills']

@@ -2,7 +2,6 @@
 """Build a reviewable Matt Pocock T3 candidate without replacing editable skills."""
 import argparse
 import hashlib
-import os
 from pathlib import Path
 
 from skills import ROOT, files, read_json, transform, write_json
@@ -56,7 +55,7 @@ def build(root, destination):
                 text = text.replace(old, new)
             if path.endswith('/SKILL.md'):
                 parts = text.split('---', 2)
-                guide = os.path.relpath('t3-runtime.md', Path(path).parent).replace(os.sep, '/')
+                guide = 'references/t3-runtime.md'
                 text = '---' + parts[1] + '---\n\n' + f'Read the [T3 runtime contract]({guide}) before executing this skill.\n\n' + parts[2].lstrip()
             output[path] = text.encode()
             original = original_path(policy, path)

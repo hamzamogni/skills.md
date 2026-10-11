@@ -4,7 +4,7 @@ description: Guides users through pstack setup, /poteto-mode, and picking the sk
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Poteto help
 
@@ -22,11 +22,11 @@ Check the state that changes the answer, and mention it only when it does. No `.
 
 ## Get set up
 
-1. Install from the skills.md checkout with `python3 scripts/skills.py install --provider codex --project /absolute/path/to/project`, or use `--provider claude`. Restart the agent session in T3 Code, then select `$poteto-mode`.
+1. From the target project, run `npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex`, or use `--agent claude-code`. Restart the agent session in T3 Code, then select `$poteto-mode`.
 2. Run [`/setup-pstack`](../setup-pstack/SKILL.md). It asks for a reasoning budget, maps a model to each role, and writes `.pstack-models.md`. The file applies to new sessions.
 3. Start a real task with `/poteto-mode`, a goal, and a check that can pass or fail.
 
-Installing changes nothing until the user invokes a skill. Only `/poteto-help` loads from the user's words. The [runtime and installation guide](../poteto-mode/references/t3-runtime.md) has the details. Offer to word their first prompt with them.
+Installing changes nothing until the user invokes a skill. Only `/poteto-help` loads from the user's words. The [runtime and installation guide](references/t3-runtime.md) has the details. Offer to word their first prompt with them.
 
 If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-pstack` and pick a smaller budget or cheaper models. A role set to `auto` or `inherit-parent` runs on the parent thread's model, which saves tokens when that model is cheaper. A shorter panel list runs fewer subagents, one for each entry. Save `/poteto-mode` for work that needs rigor.
 

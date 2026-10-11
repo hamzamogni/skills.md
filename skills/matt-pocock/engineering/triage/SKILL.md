@@ -4,7 +4,7 @@ description: Move issues and external PRs through a state machine of triage role
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Triage
 

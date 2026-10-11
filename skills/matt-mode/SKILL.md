@@ -7,14 +7,18 @@ description: Start one phase of Matt Pocock's workflow for a task, then hand bac
 
 Run one useful phase, then stop at its completion boundary. `ask-matt` is advice
 only. `poteto-mode` is the alternative implementation method; do not run both
-builders on the same ticket. Read Matt's installed T3 runtime contract through
-any Matt skill before native delegation or external actions.
+builders on the same ticket. Read the [T3 runtime contract](references/t3-runtime.md)
+before native delegation or external actions.
 
 Read the user's task and existing artifacts. Choose the first unmet phase whose
-inputs are available, and read that installed skill before starting it. Resolve Matt's engineering
-skills under `../matt-pocock/engineering/<name>/SKILL.md`, and `grill-me` under
-`../matt-pocock/productivity/grill-me/SKILL.md`, relative to this file. Use those
-actual paths when another installation exposes the same name:
+inputs are available, and read that installed skill before starting it. Resolve
+its name through the session's skill catalog and use the reported absolute
+`SKILL.md` path. Prefer this collection's project entry over a same-named global
+installation. If the catalog is unavailable, inspect the project's
+`.agents/skills/<name>/SKILL.md` or `.claude/skills/<name>/SKILL.md` and resolve
+symlinks. Do not assume the installed files retain repository category folders.
+If the required skill is missing, report it and the full-collection install command
+instead of inventing its workflow.
 
 | Situation | Phase to run |
 | --- | --- |
