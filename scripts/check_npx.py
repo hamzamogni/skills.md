@@ -16,7 +16,7 @@ from skills import ROOT, files, validate
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cli-version', default='latest')
-    parser.add_argument('--source', default=str(ROOT), help='Defaults to this checkout; use a GitHub branch URL to check publication')
+    parser.add_argument('--source', default=str(ROOT), help='Defaults to this checkout; use owner/repo#ref to check publication')
     parser.add_argument('--codex-parser', action='store_true', help='Also check the Codex installation with the local app-server parser')
     args = parser.parse_args()
     validate(ROOT)
