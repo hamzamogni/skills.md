@@ -4,18 +4,17 @@ description: "Apply when sequencing an addition, refactor, or rewrite. Remove de
 disable-model-invocation: true
 ---
 
-## T3 Code runtime
-
-Read [T3 Code runtime guidance](../poteto-mode/references/t3-runtime.md) before
-following the workflow below. That guidance replaces Cursor-specific tool, model,
-configuration, and history instructions in this skill and its references.
+Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
 
 # Subtract Before You Add
 
-When evolving a system, remove complexity first, then build. Default to subtraction.
+When evolving a system, remove complexity first, then build.
+
+**Why:** Adding to a complex system compounds complexity. Removing first leaves less code, reveals the essential structure, and usually makes the next design obvious. Default to subtraction.
 
 Make simplification a continual investment. Leave the design slightly simpler and more capable behind the same or smaller surface than you found it.
 
+**The pattern:**
 - Sequence removal before construction
 - Cut before you polish (get to the minimum before investing in quality)
 - Design for observed usage, not speculative edge cases

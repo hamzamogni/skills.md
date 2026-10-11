@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 
 from skills import ROOT, read_json, snapshot, source
+from porting import manifest
 
 
 def command(*args):
@@ -40,6 +41,16 @@ def main():
         command("git", "push", f"--force-with-lease=refs/heads/{branch}:{lease}", "origin", branch)
         url = config["web_url"]
         old = previous.get("commit", revision["commit"])
+        if manifest(ROOT, name) is not None:
+            steps = f'''python3 scripts/skills.py report {name} --diff
+python3 scripts/skills.py merge {name}
+# Resolve conflicts and review native T3 behavior, even after a clean text merge.
+python3 scripts/skills.py merge {name} --continue
+python3 scripts/skills.py validate'''
+        else:
+            steps = f'''python3 scripts/skills.py merge {name}
+# If conflicts were reported, resolve them and run merge {name} --continue.
+python3 scripts/skills.py validate'''
         body = f'''The upstream `{config['path']}` folder changed. This PR imports only that folder.
 
 [Upstream changes]({url}/compare/{old}...{revision['commit']}) · [Updated folder]({url}/tree/{revision['commit']}/{config['path']})
@@ -47,12 +58,11 @@ def main():
 Your editable `skills/{name}` copy is unchanged. To bring these changes into it, check out this PR and run:
 
 ```sh
-python3 scripts/skills.py merge {name}
-python3 scripts/skills.py validate
+{steps}
 ```
 
 Review and commit any adaptation changes on this branch, then merge this PR when ready.
-For conflicts, resolve the files and run `python3 scripts/skills.py merge {name} --continue`.
+See `docs/upstream-updates.md` for the maintenance procedure and what to watch for.
 The comparison link includes other upstream folders; this PR's diff contains only the selected folder.
 '''
         with tempfile.TemporaryDirectory() as temporary:

@@ -4,11 +4,7 @@ description: "Apply when two or more fixes that share one premise have failed th
 disable-model-invocation: true
 ---
 
-## T3 Code runtime
-
-Read [T3 Code runtime guidance](../poteto-mode/references/t3-runtime.md) before
-following the workflow below. That guidance replaces Cursor-specific tool, model,
-configuration, and history instructions in this skill and its references.
+Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
 
 # Attack the Premise
 

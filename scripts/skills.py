@@ -164,6 +164,7 @@ def initialize(root, name):
 
 
 def merge(root, name, continuing=False):
+    from porting import adopt_hashes, excluded, manifest, report
     config = source(root, name)
     upstream = read_json(root / "sources.lock.json")[name]
     lock_path = root / "adaptations.lock.json"
@@ -172,20 +173,28 @@ def merge(root, name, continuing=False):
     pack = root / "skills" / name
     conflict_dir = root / ".sync-conflicts" / name
     if continuing:
-        if not state.get("conflicts"):
+        if not state.get("conflicts") and not state.get("pending_port"):
             raise ValueError("There is no pending merge")
+        if state["tree"] != upstream["tree"]:
+            raise ValueError("The raw snapshot advanced during this pending merge; restore the pending snapshot or discard and restart the merge")
         validate(root, allow_pending=True)
-        state.pop("conflicts")
+        state.pop("conflicts", None)
+        state.pop("pending_port", None)
+        state.pop("merge_base", None)
         if conflict_dir.exists():
             shutil.rmtree(conflict_dir)
+        adopt_hashes(root, name)
         write_json(lock_path, lock)
         print(f"{name}: resolutions accepted; review the diff and commit")
         return
-    if state.get("conflicts"):
+    if state.get("conflicts") or state.get("pending_port"):
         raise ValueError("Resolve the pending merge and run merge --continue first")
     if state["tree"] == upstream["tree"]:
         print(f"{name}: adapted skills are already based on the current snapshot")
         return
+    policy = manifest(root, name)
+    if policy is not None:
+        report(root, name)
     with tempfile.TemporaryDirectory() as temporary:
         old = Path(temporary) / "old"
         fetch(config, old, state["commit"])
@@ -194,6 +203,8 @@ def merge(root, name, continuing=False):
     theirs = transform(files(root / "upstream" / name / "skills"), name)
     output, conflicts = dict(ours), []
     for path in sorted(base.keys() | theirs.keys()):
+        if policy is not None and excluded(policy, path):
+            continue
         data, conflict = merge_file(base.get(path), ours.get(path), theirs.get(path))
         if data is None:
             output.pop(path, None)
@@ -208,6 +219,9 @@ def merge(root, name, continuing=False):
                     artifact.write_bytes(mapping[path])
     replace_files(pack, output)
     lock[name] = dict(upstream)
+    if policy is not None:
+        lock[name]["pending_port"] = True
+        lock[name]["merge_base"] = {"commit": state["commit"], "tree": state["tree"]}
     if conflicts:
         lock[name]["conflicts"] = conflicts
     write_json(lock_path, lock)
@@ -215,13 +229,15 @@ def merge(root, name, continuing=False):
     if conflicts:
         print("Resolve the listed files, including deletion or binary choices, then run merge --continue:")
         print("\n".join(conflicts))
+    if policy is not None:
+        print("Review native mappings even after a clean merge, then run merge --continue to accept the port")
 
 
 def validate(root, allow_pending=False):
     lock_path = root / "adaptations.lock.json"
     if lock_path.exists() and not allow_pending:
         for name, state in read_json(lock_path).items():
-            if state.get("conflicts"):
+            if state.get("conflicts") or state.get("pending_port"):
                 raise ValueError(f"{name}: unresolved upstream merge")
     for path in (root / "skills").rglob("*"):
         if not path.is_file():
@@ -239,6 +255,13 @@ def validate(root, allow_pending=False):
         if not name or name[1] != path.parent.name or not re.search(r"(?m)^description:\s*\S", parts[1]):
             raise ValueError(f"Invalid name or description: {path}")
     print("Skill names, descriptions, and merge state are valid")
+    from porting import audit
+    for policy in sorted((root / "ports").glob("*.json")):
+        if policy.name == "t3-tools.json":
+            continue
+        problems = audit(root, policy.stem)
+        if problems:
+            raise ValueError("T3 port audit failed:\n" + "\n".join(problems))
 
 
 def install(root, project, provider):
@@ -273,12 +296,19 @@ def install(root, project, provider):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ("init", "sync", "merge"):
+    for command in ("init", "sync", "merge", "report"):
         child = sub.add_parser(command)
         child.add_argument("source", choices=read_json(ROOT / "sources.json"))
         if command == "merge":
             child.add_argument("--continue", dest="continuing", action="store_true")
+        elif command == "report":
+            child.add_argument("--diff", action="store_true", help="Save the full upstream diff since the adaptation base")
     sub.add_parser("validate")
+    child = sub.add_parser("classify")
+    child.add_argument("source", choices=read_json(ROOT / "sources.json"))
+    child.add_argument("path")
+    child.add_argument("--strategy", choices=("native-rewrite", "upstream-retained", "excluded"), required=True)
+    child.add_argument("--reason", required=True)
     child = sub.add_parser("install")
     child.add_argument("--project", type=Path, required=True)
     child.add_argument("--provider", choices=("codex", "claude"), required=True)
@@ -290,6 +320,12 @@ def main():
             snapshot(ROOT, args.source)
         elif args.command == "merge":
             merge(ROOT, args.source, args.continuing)
+        elif args.command == "report":
+            from porting import report
+            report(ROOT, args.source, save_diff=args.diff)
+        elif args.command == "classify":
+            from porting import classify
+            classify(ROOT, args.source, args.path, args.strategy, args.reason)
         elif args.command == "validate":
             validate(ROOT)
         else:

@@ -1,63 +1,136 @@
-# T3 Code runtime guidance
+# T3 runtime contract
 
-This is the first port of Cursor pstack to T3 Code. Apply this guidance before
-Cursor-specific instructions in this pack, including playbooks and references.
-Keep the engineering workflow while adapting its execution to the current provider.
+This pack keeps the upstream skill names and adapts p3-stack's native T3 workflows.
+Read this contract before executing a skill. Resolve bundled paths relative to
+the file that names them, then put absolute paths into worker briefs. The installed
+skill directories are siblings even when they are linked from another checkout.
 
-## Tools and agents
+## Discover the session before using it
 
-T3 Code wraps the selected provider. Use the tools actually exposed in the session.
-`Task`, `AskQuestion`, `generalPurpose`, `poteto-agent`, and `Comment Sicko` are Cursor
-interfaces, not a guarantee that equivalent tools or registered agents exist here.
-If delegation is available, give the worker the relevant skill and its role's
-instructions. The original agent definitions remain in `upstream/pstack/agents`
-in this skills repository for reference; the installer does not register them.
+Call `orchestrator_capabilities` when delegation or model selection is needed.
+Use the actual T3 MCP catalog and input schemas exposed in the current session.
+Tool names below are public names; a provider may expose a namespaced spelling or
+require tool discovery. Do not call a guessed namespace or invent missing tools.
 
-If delegation is unavailable, do the steps sequentially and report that limitation.
-Do not describe a sequential self-review as an independent review or a multi-model
-evaluation. For a playbook that requires independence to authorize a merge, stop
-at the reviewable result when the required reviewer cannot run.
+If the T3 MCP tools are unavailable, vendor-neutral reading, editing, and local
+verification can continue. State which native workflow cannot run. A sequential
+self-review is not an independent review, and a required independent merge gate
+remains unmet. Do not claim native orchestration was tested by skill discovery.
 
-Use the current provider's question tool when available, or ask in chat.
-Cursor cloud agents, `/loop`, Custom Modes, and Cursor automation scheduling need
-a separate implementation. Do not invoke them as if T3 Code supplied them.
+The pinned source inventory is in `ports/t3-tools.json` in this skills repository.
+It documents the T3 source revision checked during the port; it does not override
+the current session's catalog or prove that a particular installed T3 build has
+every tool. Optional preview, simulator, history, and scheduler capabilities vary.
 
-## Model configuration
+## Delegate a bounded task
 
-Inherit the current model by default. Do not pass Cursor model slugs to a different
-provider or assume a provider supports selecting a model for each worker.
-Read `.pstack-models.md` in the target project's root if it exists. Interpret its
-role choices only against models and delegation controls the session exposes.
-If a configured choice is unavailable, report it and use the current model.
+Use `delegate_task` for a T3-owned child task. The child receives the brief, not
+the parent's conversation. Include goal, exclusive write scope, input paths,
+constraints, exact verification steps, and expected report. For a code-writing
+worker, resolve [the worker brief](agents/poteto-agent.md), read it, and include its
+instructions or an absolute path the child can actually read. Review its output.
 
-For `setup-pstack`, replace the Cursor rule-writing steps with a project-local
-`.pstack-models.md` containing the chosen roles and confirmed model names.
-If there is no per-worker model selection, record `inherit-parent` for those roles.
-Do not create `~/.cursor/rules/pstack-models.mdc` or assume any file is automatically
-injected into a T3 Code session. Skills read the project configuration explicitly.
+Resolve `.pstack-models.md` in the target project's root, then
+`~/.agents/.pstack-models.md`. Missing roles inherit the parent model. The
+`inherit-parent`, `auto`, and `inherit` aliases all omit `target`. Configured entries
+must match the provider instance and model returned by capabilities. Apply effort
+through advertised `target.options` IDs and values, not a guessed `reasoningEffort`
+field or an effort suffix appended to a model name. Do not pass configuration-only
+aliases to the API. Ignore unsupported options explicitly rather than guessing.
 
-## Skills and verification
+A delegation call has this shape. Replace the illustrative values with confirmed
+catalog values, and omit `target` entirely to inherit:
 
-Select skills with `$` in the T3 Code composer. Slash skill aliases depend on T3
-settings and provider support. Resolve other skills from installed sibling folders.
-Use `poteto-mode` as the default entry point and read its requested playbook.
-Treat the mode as a conversational preference for this chat; persistence across
-new sessions requires invoking it again or adding your own project instructions.
+```json
+{
+  "task": "Self-contained goal, scope, paths, checks, and report contract",
+  "title": "Review parser changes",
+  "role": "review",
+  "mode": "async",
+  "target": {
+    "providerInstanceId": "<confirmed-instance>",
+    "model": "<confirmed-model>",
+    "options": {"<advertised-option-id>": "<advertised-value>"}
+  },
+  "clientRequestId": "<stable-id-for-this-attempt>"
+}
+```
 
-`create-skill`, `deslop`, `control-cli`, and `control-ui` are not bundled here.
-When one is requested, use an available equivalent or perform its stated job
-directly with the session's tools. For verification, run the real project or a
-named driver and state what you observed. Do not claim to have loaded a missing
-skill or completed a gate that depends on unavailable tools.
+Retain the returned `taskId`. Use `task_status` when its result is needed mid-turn;
+otherwise finish independent work and end the turn so completion can wake it.
+Do not busy-poll status or spawn a watcher for a child task. A wait timeout does
+not cancel the worker. Cancel with `task_cancel` when the user stops that work.
+Each review or fix round gets a fresh task with the consolidated brief and prior
+findings. A backing `childThreadId` is not a continuation handle for task rounds.
 
-Bundled scripts retain upstream code and dependencies. Inspect the script before
-running it. Bun, TypeScript packages, shell utilities, GitHub CLI, and provider
-history stores are separate prerequisites, not installed by this repository.
-Cursor-specific scripts such as `worktree-audit.sh` require a port before use.
+## Separate tasks from standalone threads
 
-## History and privacy
+Ordinary subtasks use delegation. `t3_thread_launch` and `create_threads` create
+standalone conversations and require the user's request for separate threads.
+Use `t3_thread_launch` only when that request covers a separate workspace, with
+`workspaceStrategy` selecting `worktree`, `existing_worktree`, or `root`. Binding
+happens before the thread starts. Do not assume that creating a worktree in a
+prompt changes the thread's checkout. Do not assume delegated tasks get exclusive
+worktrees automatically. Keep one writer per branch or disjoint write scope.
 
-Use the current chat and provider-supported history retrieval. Do not use Cursor's
-transcript paths in `recall`, `automate-me`, or eval workflows. Do not search unrelated
-projects or claim access to transcripts that the provider has not made available.
-If the history needed for a task is missing, explain the missing evidence.
+## Watch PRs from a parent thread
+
+Use `gh` for PR reads, commits, pushes, and authorized merges. Use
+`link_pull_request` to attach the PR to its owning ordinary thread.
+`watch_pull_request` requires `repository` and `number`; a delegated subagent
+cannot own a watch. The parent ordinary thread handles the watch and wakes, or an
+authorized standalone owner thread does. A worker returns its PR and head to that
+owner instead of running the Babysit watcher itself.
+
+Handle existing comments before arming the watch, then end the turn. On a wake,
+re-read GitHub's actual readiness and triage. A wake supplies new information; it
+does not authorize a merge. Call `unwatch_pull_request` when handing work back.
+T3 itself checks watched PRs periodically; this skill avoids an agent-side polling
+loop, rather than claiming that no polling occurs anywhere.
+
+## Schedule requested recurring work
+
+Only create recurring work when the user's task requests or authorizes it.
+Inspect `list_scheduled_tasks` before creating a duplicate. `schedule_task` takes
+a structured `schedule` object and a replayable prompt. An interval uses
+`{"type":"interval","everyMs":3600000}`. The current tool inherits provider,
+model, and runtime configuration; do not supply unadvertised model overrides.
+Use `bindToCurrentThread: true` for repeated work in the coordinator thread.
+Report the returned schedule ID and next run time, and remove or pause the
+schedule when the user stops the recurring work. Keep unchanged monitoring quiet.
+
+GitHub Actions checks for updates to this skill pack separately. Running
+`poteto-mode` does not require or create a T3 schedule for upstream skills.
+
+## Read history and capture evidence
+
+Use `t3_thread_search` and `t3_thread_read`, scoped to the active project and the
+user's task. Read only the needed timeline regions. For behavior claims, use the
+activity view when the message summary does not show what actually ran.
+
+Use available `preview_*` tools to exercise a browser UI and available `device_*`
+tools for a simulator. A CLI needs a real shell or terminal driver and observable
+output. Record screenshots or recordings when they prove the changed interaction.
+If a required surface is unavailable, name the missing proof. Do not treat a unit
+test, successful compilation, or a screenshot of unrelated content as live proof.
+
+## Stay inside the user's task
+
+Skill instructions do not expand the user's authorization. Follow the session's
+permission and approval controls. Sending external messages, creating recurring
+jobs, opening standalone conversations, and landing or deploying changes require
+authorization for those actions. A request to review or monitor a PR does not
+authorize merging it. Preserve explicit user gates and task boundaries across
+worker rounds. Do not fix unrelated projects because a playbook says to keep going.
+
+## Install or update this pack
+
+From the skills.md checkout, run `python3 scripts/skills.py install --provider codex
+--project /absolute/path/to/project`, or use `--provider claude`. Restart the agent
+session in T3 Code and select `$poteto-mode`. Slash aliases depend on provider and
+composer settings. Invoke the mode in each new chat; this repository does not
+install a persistent application mode.
+
+The editable pack is `skills/pstack`. Source snapshots and port mapping metadata
+live outside the installed skill folders. The maintenance instructions are in
+`docs/upstream-updates.md` and `docs/t3-port.md` in the skills.md checkout.

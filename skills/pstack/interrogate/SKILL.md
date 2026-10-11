@@ -4,59 +4,85 @@ description: "Use for \"interrogate\", \"adversarial review\", \"multi-model rev
 disable-model-invocation: true
 ---
 
-## T3 Code runtime
-
-Read [T3 Code runtime guidance](../poteto-mode/references/t3-runtime.md) before
-following the workflow below. That guidance replaces Cursor-specific tool, model,
-configuration, and history instructions in this skill and its references.
+Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
 
 # Interrogate
 
-Spawn one reviewer per configured model to adversarially review code changes. The adversarial signal comes from model diversity, not assigned personas. The deliverable is a synthesized verdict. Do NOT auto-apply changes.
+Spawn one reviewer per configured model to adversarially review code changes. Each model gets the same prompt and rubric. The adversarial signal comes from model diversity, not assigned personas.
 
-## Step 1, Scope
+The deliverable is a synthesized verdict. Do NOT auto-apply changes.
+
+## Step 1, Determine Scope
 
 Identify what to review from context:
 
-- If the user points at specific files or a diff, use that.
-- If on a feature branch, run `git diff main...HEAD` (or the appropriate base branch) for the full changeset.
-- If the user's message references recent work, gather the relevant files.
+- If the user points at specific files or a diff, use that
+- If on a feature branch, run `git diff main...HEAD` (or the appropriate base branch) for the full changeset
+- If the user's message references recent work, gather the relevant files
 
-Package the diff or file contents with any surrounding context files the reviewers need to understand the code.
+Package the diff (or file contents) plus any surrounding context files the reviewers need to understand the code.
 
-## Step 2, Intent
+## Step 2, State the Intent
 
-Before spawning reviewers, state the intent in one clear paragraph from the user's message, commit messages, the PR description if one exists, and the code. If you're unsure about the intent, ask the user before proceeding.
+Before spawning reviewers, state the intent explicitly. Derive this from:
+
+- The user's message
+- Commit messages
+- PR description if one exists
+- The code itself
+
+Write one clear paragraph. If you're unsure about the intent, ask the user before proceeding.
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single message with the Task tool, one per entry on the `interrogate reviewers` line in `~/.cursor/rules/pstack-models.mdc`, labeled Reviewer A, B, and so on to match the entry count. If the rule or that line is missing, use the table defaults.
+Launch all reviewers in a single turn, one `delegate_task` per reviewer with `mode: "async"`. Use the `interrogate reviewers` line in `.pstack-models.md`, one reviewer per entry, labeled Reviewer A, B, C, and so on for the configured entry count. Resolve each entry's provider and model through `orchestrator_capabilities`. If the line is missing, run `setup-pstack` first.
 
-| Subagent | Default model |
-|----------|---------------|
-| Reviewer A | `claude-opus-5-5-xhigh` |
-| Reviewer B | `grok-4.7-xhigh-fast` |
+For each reviewer:
+- The brief is self-contained. A delegated reviewer gets only the brief, never your context.
+- The brief says read-only: inspect only, no writes, no git commands that change state.
+- For an `auto` or `inherit-parent` entry, omit the model so that reviewer runs on the parent model.
 
-Each reviewer gets `subagent_type: generalPurpose`, `readonly: true`, and `model` set to its configured entry, or its table default when there is no configured line. Omit `model` for an `auto` or `inherit-parent` entry, so that reviewer runs on the parent model.
+If `delegate_task` rejects a configured entry, say so and run that reviewer on the closest available model of the same family from `orchestrator_capabilities`. Do not block the review on it.
 
-If the Task tool rejects a configured entry, run that reviewer on its family's table default and say so. Families go by prefix: `claude-*` and `grok-*`. With no family match, use Reviewer A's default. If it rejects a table default, spawn with the closest equivalent from the valid slugs in its error message (prefer the same family and reasoning tier), and open a separate PR to update the default table. Do not block the review on the slug issue. Never treat an alias entry as a rejected slug or apply either fallback to it.
+Read `references/reviewer-prompt.md` and fill in the template with:
+1. The stated intent
+2. The diff or file contents
+3. The review rubric from `references/rubric.md`
+4. The code-quality lens from `references/code-quality-review.md`
 
-Read `references/reviewer-prompt.md` and fill in the same template for every reviewer with the stated intent, the diff or file contents, the rubric from `references/rubric.md`, and the code-quality lens from `references/code-quality-review.md`.
+The same filled template goes to all reviewers, so every model applies the code-quality lens. Drain results with `task_status`.
 
 ## Step 4, Synthesize
 
-As results come back, build a unified picture. Parse every reviewer's findings. Merge findings that describe the same issue differently, and note which models raised each one. Findings two or more models raised independently are the highest signal. Read a lone model's finding, but weight it accordingly. Note disagreements. If one model flags something and another explicitly says the opposite, that is context for the verdict.
+As results come back, build a unified picture:
+
+1. **Parse all findings** from the reviewers
+2. **Identify consensus**. Findings raised by 2+ models independently are highest signal.
+3. **Identify lone-model findings**. Still worth reading, but weight accordingly.
+4. **Deduplicate**. Different models may describe the same issue differently. Merge these and note which models raised it.
+5. **Note disagreements**. If one model flags something and another explicitly says the opposite, that's useful context for the verdict.
 
 ## Step 5, Lead Judgment
 
-You are the lead reviewer, a pragmatic senior engineer, not a neutral aggregator. Read `references/lead-judgment.md` for the full framework. Put every finding in one of four buckets, with the model(s) that raised it and a one-line rationale.
+You are the lead reviewer, a pragmatic senior engineer, not a neutral aggregator.
 
-- **Act on**. Real issues affecting correctness, security, or maintainability given the actual goals. They would block a real PR.
-- **Consider**. Legitimate, but you're not sure they outweigh the cost of addressing them now. Worth the user's attention.
-- **Noted**. Technically valid but not actionable. Context-dependent, premature optimization, or low-impact at this stage.
-- **Dismissed**. Wrong, nitpicky, or missing context, with a brief reason.
+Read `references/lead-judgment.md` for the full framework.
+
+Categorize every finding using these buckets:
+
+- **Act on**. Real issues affecting correctness, security, or maintainability given the actual goals. These would block a real PR.
+- **Consider**. Legitimate points, but you're not sure they outweigh the cost of addressing them right now. Worth the user's attention.
+- **Noted**. Technically valid but not actionable. Context-dependent, premature optimization, or low-impact given the current stage.
+- **Dismissed**. Wrong, nitpicky, or missing context. Brief explanation why.
+
+For each finding, include:
+- Which model(s) raised it
+- The category (act on / consider / noted / dismissed)
+- A one-line rationale for the categorization
 
 ## Output Format
+
+Present the verdict in this structure:
 
 ### Intent
 > [The stated intent paragraph from Step 2]
@@ -65,16 +91,16 @@ You are the lead reviewer, a pragmatic senior engineer, not a neutral aggregator
 - Reviewer [label]: [model name], [N findings] (one bullet per reviewer)
 
 ### Act On
-[Each: description, which models raised it, why it matters.]
+[Findings that should be addressed. For each: description, which models raised it, why it matters.]
 
 ### Consider
-[Each: description, which models raised it, the tradeoff.]
+[Findings worth thinking about. For each: description, which models raised it, tradeoff involved.]
 
 ### Noted
-[Brief list.]
+[Valid but low-priority. Brief list.]
 
 ### Dismissed
-[Each with a brief rationale.]
+[Rejected findings with brief rationale.]
 
 ### Agreement Map
-[Where models agreed and diverged, and what that pattern tells us.]
+[Where did models agree, where did they diverge, and what does the pattern of agreement/disagreement tell us?]

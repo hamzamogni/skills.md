@@ -1,16 +1,46 @@
+---
+name: autopilot-stack
+description: Build and verify one linear base-branch stack, then hand it to the operator to review and land.
+---
+
 ### Autopilot-stack
 
-**You own the stack, never the landing. Build and verify the queue with full autonomy, then hand the operator one linear base-branch stack to review and land.** The sibling of **Autopilot-full**.
+Read the [runtime contract](../references/t3-runtime.md). This playbook builds and
+verifies the queue while the operator retains landing authority. Use
+[Autopilot-full](autopilot-full.md) when the user explicitly grants landing.
 
-1. **Run the owner loop unchanged.** Resolve the forge once for the program. GitHub CLI (`gh`) is the default. If `command -v origin` succeeds and Origin can resolve the repository, use `origin pr ...` for PR create, edit, view, watch, and merge operations. Otherwise stay on `gh` and record the fallback. Never require Graphite (`gt`). One Cursor cloud agent per PR owns its change end to end: build, first push, a ready PR opened before self-proof, self-proof (gates, CI, receipts), skeptical Bugbot triage per `../references/bugbot-triage.md`, a slop-strip (the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`)), `/no-comments` (the **no-comments** skill), and babysit to green per `playbooks/babysit.md`. Owners parallelize when the work is self-contained. Within about 15 minutes, every owner starts a `decisions.tsv` trail per the **show-me-your-work** skill, pushes its first branch snapshot, and opens the PR ready, never draft. After that, the owner pushes its branch again after every verifiable unit (hooks on, a WIP commit is fine). Keep the trail uncommitted and return it in the report. Owners also keep the `children.tsv` of Autopilot-full step 2.
-2. **Audit on a real loop.** The root runs an audit tick every hour. On the operator's go, the root arms `/loop 1h` with a prompt that runs this tick, per Autopilot-full step 6. Never leave the cadence to memory or lossy completion notifications. At each tick, re-read this playbook from trunk with `git show origin/main:pstack/skills/poteto-mode/playbooks/autopilot-stack.md` and audit the operation against it. Fix drift during that tick. Probe each owner with a generic liveness or status check. Count only side effects as progress: commits, pushes, PR or check deltas, and store reports. Treat a lane that passes its expected runtime without a side effect as stuck. Stand it down and dispatch a replacement at once. Do not wait for a polite return. Probe all subagents and end the tick per Autopilot-full step 6.
-3. **Hold the operator gates.** State-then-wait, so a request to state the plan is not a go. On the operator's stop, every owner takes an immediate zero-writes hold.
-4. **Verify each round.** The owner reports its code-ready head SHA once the shipped code is final, and STACK-READY with the exact head SHA when its loop is green. The root verifies each round per Autopilot-full step 4, with STACK-READY in place of merge-ready. Nothing enters the stack unverified.
-5. **Append on a clean verdict, never ship.** No owner merges, arms auto-merge, or closes. A clean verdict appends the PR to the one linear base-branch stack, in verified order or an order the operator specified.
-6. **Single writer on topology, parallel writers on builds.** Owners push only their own branches and report the tip, current base, and intended parent. The root is the only topology writer. To append a PR, fetch the intended parent, rebase the child branch onto that exact parent tip, push with `--force-with-lease` only after an `ls-remote` check, and set the PR base to the parent branch. Create it with `origin pr create --status open --base <parent-branch>` or `gh pr create --base <parent-branch>` according to the resolved forge. Retarget an existing PR with `origin pr edit <pr> --base <parent-branch>` or `gh pr edit <pr> --base <parent-branch>`. Only the root PR targets trunk. Never submit or register the chain through `gt`.
-7. **Absorb drift at the root, then re-verify what moved.** The root fetches current trunk and rebases the chain from bottom to top. When a rebase surfaces conflicts in an owner's files, that owner fixes its own slice and the root pushes the result. A rebase rewrites every SHA above it and voids verdicts at the old SHAs. Apply the patch-id rule in `playbooks/shipping.md` at each verdict SHA. Anything that is no longer valid goes back through this playbook's step 4 before delivery. Re-run mergeability and CI after every rewritten push even when the patch-id is unchanged. The countersign rule is unchanged from Autopilot-full. A genuinely new pin raises a stop for the root's fresh countersign. Absorbing drift of landed values is not a raise.
-8. **Deliver the chain.** The deliverable is one linear chain of verified PRs, reviewable bottom-up in the resolved forge, every link carrying its verifier verdict in the PR body or a comment. The operator reviews and lands it, with their own clicks or by arming merge-when-ready.
-
-**Choosing between the autopilots.** Autopilot-full when the PRs are independent and landing authority is granted. Autopilot-stack when the operator wants review before landing, the work is sequenced or coupled, or merge authority is withheld.
-
-**Reply:** links to the stack root and tip, a one-line verdict summary per link, and anything parked or excluded with the reason.
+1. **Run bounded implementation passes.** Follow Autopilot-full steps 1 through 5
+   for briefs, model roles, exclusive checkout paths, trails, independent proof,
+   and fresh fix rounds. A delegated worker builds and returns its PR URL, head,
+   base, checks, blockers, and trail. The ordinary parent owns watches and queue
+   state. Only user-requested standalone owners bind workspaces through
+   `t3_thread_launch`; ordinary delegation does not allocate worktrees.
+2. **Keep landing with the operator.** No worker or parent merges, closes a PR, or
+   arms auto-merge. A request to state the plan is not a go. Preserve named review
+   gates. On a stop, cancel tasks and watches and pause requested audits.
+3. **Verify each round.** Require a clean independent verdict at the final patch
+   per Autopilot-full step 4. Report STACK-READY with its exact head and base SHAs
+   and evidence. A changed patch requires new proof under Shipping's patch-id
+   rules. CI and mergeability rerun after every rewritten push.
+4. **Append in verified order.** The root targets trunk; each higher PR targets its
+   predecessor's branch. The parent is the only topology writer. Owners write
+   only their assigned branches and return intended parent and tip. Fetch that
+   parent, reconcile the child onto the exact tip, then push an owned branch with
+   `--force-with-lease` after checking the remote tip. Preserve existing work.
+   Use `gh pr create --base <parent-branch>` or `gh pr edit <pr> --base <parent-branch>`.
+   Do not require Graphite. Attach each PR with `link_pull_request` and check
+   `list_thread_pull_requests` against the intended bottom-to-top order.
+5. **Reconcile drift and reverify.** Work bottom-up after trunk changes. Delegate
+   bounded conflict fixes to the code owner; keep topology changes in the parent.
+   Rewritten SHAs invalidate verdicts unless Shipping's patch-id rules preserve
+   the specific evidence. A new behavior needs another independent review round.
+   Do not count inherited green checks as current proof.
+6. **The parent monitors readiness.** Read existing comments and checks, then use
+   [Babysit](babysit.md) on the frontier. Arm `watch_pull_request` in the ordinary
+   parent and end the turn. A delegated child returns status; it cannot watch.
+   Fix verified findings through fresh tasks. A wake never authorizes landing.
+   Use recurring audits only if requested, as in Autopilot-full step 8.
+7. **Deliver and hand back.** Report the stack root and tip, order, final SHAs,
+   verdict and evidence for each link, pending gates, and excluded work. The
+   operator reviews and lands it. Remove watches and recurring audits when
+   handing control back unless continued monitoring was requested.

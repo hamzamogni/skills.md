@@ -1,18 +1,14 @@
 ---
 name: principle-redesign-from-first-principles
-description: "Apply when integrating a new requirement into an existing design."
+description: "Apply when integrating a new requirement into an existing design. Redesign as if the requirement had been a foundational assumption from day one, instead of bolting it on."
 disable-model-invocation: true
 ---
 
-## T3 Code runtime
-
-Read [T3 Code runtime guidance](../poteto-mode/references/t3-runtime.md) before
-following the workflow below. That guidance replaces Cursor-specific tool, model,
-configuration, and history instructions in this skill and its references.
+Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
 
 # Redesign From First Principles
 
-When integrating a change, don't bolt it onto the existing design. Redesign as if the requirement had been a foundational assumption from the start.
+When integrating a change, don't bolt it onto the existing design. Redesign as if the requirement had been there from the start.
 
 - Read all affected files and understand the current design
 - Ask: "if we were writing this from scratch with this new requirement, what would we build?"

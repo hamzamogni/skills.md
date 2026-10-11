@@ -20,11 +20,17 @@ for Codex or `.claude/skills` for Claude. Keep this checkout at the same path.
 Existing skills with the same name are preserved and cause installation to stop.
 Re-running installation adds missing links and leaves matching links alone.
 
-The first port normalizes skill names and adds
-[T3 Code runtime guidance](skills/pstack/poteto-mode/references/t3-runtime.md).
-Cursor-specific subagents, cloud orchestration, automation packs, and bundled
-scripts have not all been ported or verified in T3 Code. The guidance explains
-which instructions need provider equivalents or a sequential fallback.
+The pack keeps all 52 upstream skill names and builds on
+[p3-stack's native T3 port](https://github.com/uzairansaruzi/p3-stack).
+Delegation, model roles, PR watches, scheduling, history, and runtime proof use
+T3 instructions. Cursor scripts stay in the raw snapshot and are excluded from
+installation. Start with `setup-pstack` to choose model roles, or let unspecified
+roles inherit your parent model.
+
+Read [the port and tool mapping](docs/t3-port.md) and the
+[T3 runtime contract](skills/pstack/poteto-mode/references/t3-runtime.md).
+Static checks and skill discovery do not establish live T3 behavior; use the
+[smoke checks](docs/t3-smoke.md) when changing native workflows.
 
 See T3 Code's [composer docs](https://github.com/pingdotgg/t3code/blob/main/docs/user/composer.md)
 and [Claude skill discovery](https://github.com/pingdotgg/t3code/blob/main/docs/user/providers-claude.md#skills).
@@ -67,6 +73,7 @@ Workflow permissions**. That setting is enabled during initial setup.
 | `sources.json` | Repository, branch, subtree, and reviewer for each source |
 | `sources.lock.json` | Commit and subtree hash of each imported snapshot |
 | `adaptations.lock.json` | Upstream revision used as each adaptation's merge base |
+| `ports/` | File mappings, accepted source hashes, and pinned T3 tool inventory |
 | `scripts/` | Import, three-way merge, validation, installation, and PR creation |
 
 Python 3.10 or newer and Git are required. Automated PR creation also uses GitHub
@@ -80,6 +87,7 @@ and merge base. The first T3 port is specific to pstack;
 other packs need their own runtime adaptation.
 
 Imported pstack material is copyright 2026 Lauren Tan and licensed under
-[MIT](upstream/pstack/LICENSE). The copy under `skills/pstack` retains that notice.
+[MIT](upstream/pstack/LICENSE). The editable pack retains her notice and Uzair
+Ansar's T3 adaptation notice in [its license](skills/pstack/LICENSE).
 Original code and documentation in this repository are reserved to the author
 unless a separate license is added.

@@ -4,11 +4,8 @@ description: "Catch the user up on everything in this chat since their last mess
 disable-model-invocation: true
 ---
 
-## T3 Code runtime
 
-Read [T3 Code runtime guidance](../poteto-mode/references/t3-runtime.md) before
-following the workflow below. That guidance replaces Cursor-specific tool, model,
-configuration, and history instructions in this skill and its references.
+Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
 
 # Ketchup
 
