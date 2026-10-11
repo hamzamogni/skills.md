@@ -251,6 +251,7 @@ def validate(root, allow_pending=False):
         for name, state in read_json(lock_path).items():
             if state.get("conflicts") or state.get("pending_port"):
                 raise ValueError(f"{name}: unresolved upstream merge")
+    seen_names = {}
     for path in (root / "skills").rglob("*"):
         if not path.is_file():
             continue
@@ -266,6 +267,9 @@ def validate(root, allow_pending=False):
         name = re.search(r"(?m)^name:\s*([a-z0-9-]+)\s*$", parts[1])
         if not name or name[1] != path.parent.name or not re.search(r"(?m)^description:\s*\S", parts[1]):
             raise ValueError(f"Invalid name or description: {path}")
+        if name[1] in seen_names:
+            raise ValueError(f"Duplicate skill names: {name[1]} in {seen_names[name[1]]} and {path}")
+        seen_names[name[1]] = path
     print("Skill names, descriptions, and merge state are valid")
     from porting import audit
     for policy in sorted((root / "ports").glob("*.json")):
@@ -296,19 +300,19 @@ def install(root, project, provider):
     for policy_path in (root / "ports").glob("*.json"):
         policy = read_json(policy_path)
         for old in policy.get("path_aliases", {}):
-            legacy_targets.add((root / "skills" / policy_path.stem / old).resolve())
+            legacy_targets.add((Path(old).name, (root / "skills" / policy_path.stem / old).resolve()))
     migrations = []
     # Preflight the whole plan before creating a link.
     for entry in candidates:
         target = destination / entry.name
         if target.exists() or target.is_symlink():
-            if target.is_symlink() and target.resolve() in legacy_targets:
+            if target.is_symlink() and (target.name, target.resolve()) in legacy_targets:
                 migrations.append(target)
             elif not target.is_symlink() or target.resolve() != entry.resolve():
                 raise ValueError(f"Refusing to replace an existing skill: {target}")
     if destination.exists():
         migrations.extend(target for target in destination.iterdir()
-                          if target.is_symlink() and target.resolve() in legacy_targets and target not in migrations)
+                          if target.is_symlink() and (target.name, target.resolve()) in legacy_targets and target not in migrations)
     for target in migrations:
         target.unlink()
     destination.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,7 @@ description: "Review the changes since a fixed point (commit, branch, tag, or me
 
 Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+Two-axis review of the requested changes since a fixed point the user supplies:
 
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
@@ -20,9 +20,13 @@ The issue tracker should have been provided to you. If not, tell the user to run
 
 Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Resolve the fixed point and `HEAD` to commit SHAs, then compute their merge-base once. A bad ref should fail here, before starting reviewers. Select the scope from the request:
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
+- **Committed branch or PR:** capture `git diff <merge-base-sha> <head-sha>` and `git log <base-sha>..<head-sha> --oneline`.
+- **Work in progress, including a review called by `implement`:** capture `git diff <merge-base-sha>`, which includes committed, staged, and unstaged tracked changes. Enumerate untracked files with `git ls-files --others --exclude-standard`, and capture the contents of relevant new files separately; Git's diff omits them.
+- **Staged-only or unstaged-only request:** use `git diff --cached` or `git diff` respectively. Honor that narrower scope and state which changes it excludes.
+
+Save the patch, commit list, and any relevant untracked-file evidence in a temporary review artifact outside the changed files, or include their complete contents in both reviewer briefs. Pin the same evidence for both axes; a command that reads a changing checkout is not a snapshot. Include the absolute checkout path, resolved SHAs, selected scope, and evidence paths. Reviewers may read surrounding code but must not stage or commit files to make them reviewable. Stop for an empty review only after checking every selected evidence source, including relevant untracked files for work in progress. Before reporting, check whether the reviewed files changed since capture and disclose any changes that were not reviewed.
 
 ### 2. Identify the spec source
 
@@ -63,13 +67,13 @@ Use two read-only `delegate_task` calls with self-contained briefs and `mode: "a
 
 **Standards sub-agent prompt** should include:
 
-- The full diff command and commit list.
+- The selected scope, resolved SHAs, captured patch and commit list, and any untracked-file evidence from step 1.
 - The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
 
 **Spec sub-agent prompt** should include:
 
-- The diff command and commit list.
+- The same pinned scope and evidence from step 1.
 - The path or fetched contents of the spec.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 

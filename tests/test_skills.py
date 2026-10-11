@@ -230,6 +230,8 @@ class SkillsBehavior(unittest.TestCase):
         project = Path(self.temp.name) / "collision-project"
         project.mkdir()
         with self.assertRaisesRegex(ValueError, "Duplicate skill names"):
+            self.quiet(skills.validate, self.root)
+        with self.assertRaisesRegex(ValueError, "Duplicate skill names"):
             self.quiet(skills.install, self.root, project, "codex")
         self.assertFalse((project / ".agents").exists())
 
@@ -238,6 +240,8 @@ class SkillsBehavior(unittest.TestCase):
         project = Path(self.temp.name) / "migration-project"
         project.mkdir()
         self.quiet(skills.install, self.root, project, "codex")
+        custom_alias = project / ".agents/skills/my-example"
+        custom_alias.symlink_to(self.pack / "example", target_is_directory=True)
         policy = porting.manifest(self.root, "pstack")
         policy["path_aliases"] = {"example/": "local-example/"}
         policy["skill_aliases"] = {"example": "local-example"}
@@ -245,6 +249,8 @@ class SkillsBehavior(unittest.TestCase):
         skills.write_json(self.root / "ports/pstack.json", policy)
         self.quiet(skills.install, self.root, project, "codex")
         self.assertFalse((project / ".agents/skills/example").is_symlink())
+        self.assertTrue(custom_alias.is_symlink())
+        self.assertEqual(custom_alias.resolve(), (self.pack / "example").resolve())
         self.assertEqual((project / ".agents/skills/local-example").resolve(), (self.pack / "local-example").resolve())
         self.quiet(skills.install, self.root, project, "codex")
         link = project / ".agents/skills/local-example"

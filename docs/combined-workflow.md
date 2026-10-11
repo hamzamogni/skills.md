@@ -32,6 +32,11 @@ only declared old symlinks owned by this checkout. It refuses unrelated links or
 real directories with colliding names. Keep the checkout at the same path. If you
 already installed another copy of either pack globally, inspect duplicate skill
 names in T3 before using it; this installer does not manage that other copy.
+The discovery check found an existing global p3 installation on this machine.
+Project skills have the intended collection paths, but same-named global entries
+are also listed. Select this collection's project entries. For a single global
+installation, deliberately remove or disable the older copy using its own install
+method after checking its links; this PR does not change that external checkout.
 
 ## Start at the right place
 
@@ -159,6 +164,8 @@ Use [the T3 smoke guide](t3-smoke.md), and also check:
    and stops with actual results and next-step pointers.
 2. Matt's TDD and teaching route to `tdd`/`teach`; pstack calls resolve to
    `poteto-tdd`/`poteto-teach`. Standards/spec review reaches `matt-code-review`.
+   Check a staged change, an unstaged change, and a relevant untracked file;
+   a work-in-progress review must cover all three using the same captured evidence.
 3. With local tracker setup, write a small agreed spec and two dependent tickets.
    Verify the interview decisions survive and the second ticket remains blocked
    until its dependency is implemented and verified.

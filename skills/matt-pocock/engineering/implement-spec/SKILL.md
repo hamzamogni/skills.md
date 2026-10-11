@@ -21,7 +21,7 @@ when their completion contract requires a merged PR.
    brief; children do not inherit the conversation.
 3. For each ready ticket, create an exclusive checkout based on the current
    integration tip. Use a bounded `delegate_task` with that absolute cwd, scope,
-   tracker/spec pointers, and checks. The child reads Matt's installed `tdd`,
+   tracker/spec pointers, and checks. The child reads [Matt's TDD](../tdd/SKILL.md),
    builds vertical red-green slices, runs relevant checks, and returns its branch,
    base/head SHAs, evidence, and blockers. Commit or publish only when authorized.
    A user-requested standalone worker instead binds its worktree through
@@ -37,7 +37,7 @@ when their completion contract requires a merged PR.
 6. If the user requested a PR, create a draft after the integration branch has a
    change. Attach it with `link_pull_request`. Workers return PR facts; parent-only
    PR watches handle any requested monitoring. Opening a PR is not merge authority.
-7. After the final ticket, read and run `matt-code-review` against the integration
+7. After the final ticket, read and run [Matt's standards/spec review](../matt-code-review/SKILL.md) against the integration
    base and spec. Consolidate findings into fresh fix tasks, then reverify the
    changed behavior at the final head. A self-review is not independent review.
 8. Mark an authorized draft ready when verification passes. Report ticket states,

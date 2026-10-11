@@ -11,7 +11,10 @@ builders on the same ticket. Read Matt's installed T3 runtime contract through
 any Matt skill before native delegation or external actions.
 
 Read the user's task and existing artifacts. Choose the first unmet phase whose
-inputs are available, and read that installed skill before starting it:
+inputs are available, and read that installed skill before starting it. Resolve Matt's engineering
+skills under `../matt-pocock/engineering/<name>/SKILL.md`, and `grill-me` under
+`../matt-pocock/productivity/grill-me/SKILL.md`, relative to this file. Use those
+actual paths when another installation exposes the same name:
 
 | Situation | Phase to run |
 | --- | --- |

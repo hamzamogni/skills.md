@@ -3,7 +3,10 @@
 Use these instructions with the engineering and productivity skills. Preserve the
 project's tracker, glossary, ADR, and document conventions from
 `setup-matt-pocock-skills`. Read installed `SKILL.md` files when a workflow names
-another skill. A dedicated Skill tool is not required or assumed.
+another skill. Prefer this project collection's source path over a same-named
+global installation. Inside this pack, resolve sibling skill paths from the current
+file before supplying their absolute paths to a child. A dedicated Skill tool is
+not required or assumed.
 
 ## Native execution
 

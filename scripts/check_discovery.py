@@ -13,7 +13,8 @@ from skills import ROOT, install
 
 
 def main():
-    expected = {path.parent.name for path in (ROOT / 'skills').rglob('SKILL.md')}
+    expected_paths = {path.parent.name: path.resolve() for path in (ROOT / 'skills').rglob('SKILL.md')}
+    expected = set(expected_paths)
     with tempfile.TemporaryDirectory() as temporary:
         scratch = Path(temporary)
         project = scratch / 'project'
@@ -60,13 +61,19 @@ def main():
                     'cwds': [str(project)], 'forceReload': True}})
                 result = response(2)
                 discovered = {skill['name'] for entry in result['data'] for skill in entry['skills']}
+                correct_paths = {skill['name'] for entry in result['data'] for skill in entry['skills']
+                                 if skill['name'] in expected_paths and Path(skill['path']).resolve() == expected_paths[skill['name']]}
                 failures = [error for entry in result['data'] for error in entry.get('errors', [])]
-                if failures or expected - discovered:
-                    raise RuntimeError(f'Parser errors: {failures}; missing skills: {sorted(expected - discovered)}')
+                if failures or expected - discovered or expected - correct_paths:
+                    raise RuntimeError(f'Parser errors: {failures}; missing collection paths: {sorted(expected - correct_paths)}')
                 output = ROOT / '.work/codex-discovery.json'
                 output.parent.mkdir(exist_ok=True)
                 output.write_text(json.dumps(result, indent=2) + '\n')
                 print(f'Codex discovered all {len(expected)} collection skills without parsing errors. Saved {output}')
+                duplicates = sorted({skill['name'] for entry in result['data'] for skill in entry['skills']
+                                     if skill['name'] in expected_paths and Path(skill['path']).resolve() != expected_paths[skill['name']]})
+                if duplicates:
+                    print('Other installations also expose these names; select the project collection paths: ' + ', '.join(duplicates))
             finally:
                 proc.terminate()
                 try:
