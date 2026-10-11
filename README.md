@@ -9,6 +9,8 @@ directory and MIT license, with 27 published skills installed.
 See [the combined workflow](docs/combined-workflow.md) for the one-pager setup,
 `matt-mode`, and the distinct teaching, TDD, and review commands.
 
+![Skills workflow one-pager: when to use Matt Pocock and poteto skills](docs/images/skills-one-pager.png)
+
 ## Use the skills in T3 Code
 
 Clone this repository on the machine running your T3 Code agent:
