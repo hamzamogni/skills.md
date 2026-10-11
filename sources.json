@@ -5,5 +5,16 @@
     "branch": "main",
     "path": "pstack",
     "reviewer": "hamzamogni"
+  },
+  "matt-pocock": {
+    "url": "https://github.com/mattpocock/skills.git",
+    "web_url": "https://github.com/mattpocock/skills",
+    "branch": "main",
+    "path": ".",
+    "include": [
+      "LICENSE",
+      "skills"
+    ],
+    "reviewer": "hamzamogni"
   }
 }

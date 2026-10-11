@@ -6,11 +6,13 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import skills
 import porting
 import seed_t3_port
+import check_upstream
 
 
 class SkillsBehavior(unittest.TestCase):
@@ -168,6 +170,132 @@ class SkillsBehavior(unittest.TestCase):
         self.assertNotIn("p3-mode", result)
         with self.assertRaisesRegex(ValueError, "new candidate directory"):
             seed_t3_port.build(self.remote, self.pack, root=self.root)
+
+    def test_selected_root_import_tracks_skills_and_license_only(self):
+        self.put("LICENSE", "Root license\n")
+        self.put("skills/engineering/other/SKILL.md", "---\nname: other\ndescription: Nested\n---\nNested\n")
+        self.commit()
+        config = skills.read_json(self.root / "sources.json")
+        config["matt-pocock"] = {"url": str(self.remote), "branch": "main", "path": ".", "include": ["LICENSE", "skills"]}
+        skills.write_json(self.root / "sources.json", config)
+        self.quiet(skills.initialize, self.root, "matt-pocock")
+        self.assertEqual(set(skills.files(self.root / "upstream/matt-pocock")),
+                         {"LICENSE", "skills/engineering/other/SKILL.md"})
+        self.put("README.md", "Unrelated repository documentation\n")
+        self.commit()
+        self.assertFalse(self.quiet(skills.snapshot, self.root, "matt-pocock"))
+        self.put("LICENSE", "Root license updated\n")
+        self.commit()
+        self.assertTrue(self.quiet(skills.snapshot, self.root, "matt-pocock"))
+        project = Path(self.temp.name) / "nested-project"
+        project.mkdir()
+        self.quiet(skills.install, self.root, project, "codex")
+        self.assertEqual((project / ".agents/skills/other").resolve(),
+                         (self.root / "skills/matt-pocock/engineering/other").resolve())
+
+    def test_alias_migration_merges_upstream_into_originally_named_skill(self):
+        self.native()
+        policy = porting.manifest(self.root, "pstack")
+        policy["path_aliases"] = {"example/": "local-example/"}
+        policy["skill_aliases"] = {"example": "local-example"}
+        skills.write_json(self.root / "ports/pstack.json", policy)
+        skills.replace_files(self.pack, porting.map_contents(skills.files(self.pack), policy))
+        local = self.pack / "local-example/SKILL.md"
+        local.write_text(local.read_text().replace("First", "Local first"))
+        raw = self.remote / "pstack/skills/example/SKILL.md"
+        self.update("pstack/skills/example/SKILL.md", raw.read_text().replace("Third", "New third"))
+        self.quiet(skills.merge, self.root, "pstack")
+        self.quiet(skills.merge, self.root, "pstack", continuing=True)
+        self.assertIn("Local first\nSecond\nNew third", local.read_text())
+        self.assertIn("name: local-example", local.read_text())
+        self.assertFalse((self.pack / "example").exists())
+        self.assertEqual(self.quiet(porting.report, self.root, "pstack"), [])
+
+    def test_aliases_rewrite_commands_and_local_links_without_changing_source_urls(self):
+        policy = {"path_aliases": {"code-review/": "matt-code-review/"},
+                  "skill_aliases": {"code-review": "matt-code-review"}}
+        data = b'---\nname: code-review\ndescription: Review\n---\nUse /code-review and "code-review". [review](./code-review/SKILL.md) [source](https://example.invalid/code-review/SKILL.md)\n'
+        output = porting.map_contents({"code-review/SKILL.md": data}, policy)
+        text = output["matt-code-review/SKILL.md"].decode()
+        self.assertIn("name: matt-code-review", text)
+        self.assertIn("/matt-code-review", text)
+        self.assertIn("./matt-code-review/SKILL.md", text)
+        self.assertIn("https://example.invalid/code-review/SKILL.md", text)
+        self.assertEqual(porting.map_contents(output, policy), output)
+
+    def test_alias_collision_stops_before_install_changes_existing_skills(self):
+        personal = self.root / "skills/elsewhere/engineering/example"
+        personal.mkdir(parents=True)
+        (personal / "SKILL.md").write_text("---\nname: example\ndescription: Duplicate\n---\nBody\n")
+        project = Path(self.temp.name) / "collision-project"
+        project.mkdir()
+        with self.assertRaisesRegex(ValueError, "Duplicate skill names"):
+            self.quiet(skills.install, self.root, project, "codex")
+        self.assertFalse((project / ".agents").exists())
+
+    def test_install_migrates_only_declared_owned_alias_links(self):
+        self.native()
+        project = Path(self.temp.name) / "migration-project"
+        project.mkdir()
+        self.quiet(skills.install, self.root, project, "codex")
+        policy = porting.manifest(self.root, "pstack")
+        policy["path_aliases"] = {"example/": "local-example/"}
+        policy["skill_aliases"] = {"example": "local-example"}
+        skills.replace_files(self.pack, porting.map_contents(skills.files(self.pack), policy))
+        skills.write_json(self.root / "ports/pstack.json", policy)
+        self.quiet(skills.install, self.root, project, "codex")
+        self.assertFalse((project / ".agents/skills/example").is_symlink())
+        self.assertEqual((project / ".agents/skills/local-example").resolve(), (self.pack / "local-example").resolve())
+        self.quiet(skills.install, self.root, project, "codex")
+        link = project / ".agents/skills/local-example"
+        link.unlink()
+        foreign = Path(self.temp.name) / "foreign-skill"
+        foreign.mkdir()
+        link.symlink_to(foreign, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "Refusing to replace"):
+            self.quiet(skills.install, self.root, project, "codex")
+        self.assertEqual(link.resolve(), foreign.resolve())
+
+    def test_two_source_updater_creates_independent_review_branches(self):
+        self.native()
+        configs = skills.read_json(self.root / "sources.json")
+        configs["pstack"].update(web_url="https://example.invalid/source", reviewer="maintainer")
+        configs["other"] = dict(configs["pstack"])
+        skills.write_json(self.root / "sources.json", configs)
+        self.quiet(skills.initialize, self.root, "other")
+        skills.run("git", "init", "--quiet", "-b", "main", str(self.root))
+        skills.run("git", "config", "user.name", "Test", cwd=self.root)
+        skills.run("git", "config", "user.email", "test@example.invalid", cwd=self.root)
+        skills.run("git", "add", "-A", cwd=self.root)
+        skills.run("git", "commit", "--quiet", "-m", "Initial collection", cwd=self.root)
+        target = Path(self.temp.name) / "collection-origin"
+        skills.run("git", "init", "--quiet", "--bare", str(target))
+        skills.run("git", "remote", "add", "origin", str(target), cwd=self.root)
+        skills.run("git", "push", "--quiet", "origin", "main", cwd=self.root)
+        initial = skills.read_json(self.root / "sources.lock.json")
+        raw = self.remote / "pstack/skills/example/SKILL.md"
+        self.put("pstack/skills/example/SKILL.md", raw.read_text().replace("Third", "Updated third"))
+        self.commit()
+        created = []
+        def command(*args):
+            if args[:3] == ("gh", "pr", "list"):
+                return "[]"
+            if args[:3] == ("gh", "pr", "create"):
+                body = Path(args[args.index("--body-file") + 1]).read_text()
+                self.assertIn("--reviewer", args)
+                created.append((args[args.index("--head") + 1], body,
+                                skills.read_json(self.root / "sources.lock.json")))
+                return "https://example.invalid/pull/1"
+            return skills.run(*args, cwd=self.root).stdout.decode().strip()
+        with patch.object(check_upstream, "ROOT", self.root), patch.object(check_upstream, "command", command), \
+                patch.dict(check_upstream.os.environ, {"GITHUB_REPOSITORY": "owner/collection"}):
+            self.quiet(check_upstream.main)
+        self.assertEqual([row[0] for row in created], ["sync/pstack", "sync/other"])
+        self.assertIn("report pstack --diff", created[0][1])
+        self.assertEqual(created[0][2]["other"], initial["other"])
+        self.assertEqual(created[1][2]["pstack"], initial["pstack"])
+        self.assertEqual(skills.run("git", "branch", "--show-current", cwd=self.root).stdout.strip(), b"main")
+        self.assertEqual(skills.read_json(self.root / "sources.lock.json"), initial)
 
     def test_only_selected_subtree_is_imported(self):
         self.assertEqual(set(skills.files(self.root / "upstream/pstack")),

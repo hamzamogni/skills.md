@@ -40,6 +40,8 @@ def main():
         lease = remote.split()[0] if remote else ""
         command("git", "push", f"--force-with-lease=refs/heads/{branch}:{lease}", "origin", branch)
         url = config["web_url"]
+        folder_url = f"{url}/tree/{revision['commit']}" + (f"/{config['path']}" if config['path'] != "." else "")
+        selection = ", ".join(f"`{path}`" for path in config.get("include", [config["path"]]))
         old = previous.get("commit", revision["commit"])
         if manifest(ROOT, name) is not None:
             steps = f'''python3 scripts/skills.py report {name} --diff
@@ -51,9 +53,9 @@ python3 scripts/skills.py validate'''
             steps = f'''python3 scripts/skills.py merge {name}
 # If conflicts were reported, resolve them and run merge {name} --continue.
 python3 scripts/skills.py validate'''
-        body = f'''The upstream `{config['path']}` folder changed. This PR imports only that folder.
+        body = f'''The upstream selection changed. This PR imports only {selection}.
 
-[Upstream changes]({url}/compare/{old}...{revision['commit']}) · [Updated folder]({url}/tree/{revision['commit']}/{config['path']})
+[Upstream changes]({url}/compare/{old}...{revision['commit']}) · [Updated source]({folder_url})
 
 Your editable `skills/{name}` copy is unchanged. To bring these changes into it, check out this PR and run:
 
@@ -63,7 +65,7 @@ Your editable `skills/{name}` copy is unchanged. To bring these changes into it,
 
 Review and commit any adaptation changes on this branch, then merge this PR when ready.
 See `docs/upstream-updates.md` for the maintenance procedure and what to watch for.
-The comparison link includes other upstream folders; this PR's diff contains only the selected folder.
+The comparison link can include other upstream folders; this PR's diff contains only the selected content.
 '''
         with tempfile.TemporaryDirectory() as temporary:
             body_file = Path(temporary) / "body.md"

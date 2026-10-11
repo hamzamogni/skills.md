@@ -1,6 +1,6 @@
 # How this T3 port is maintained
 
-The editable pack keeps all 52 upstream skill names, including `poteto-mode`,
+The editable pack keeps 52 upstream skills, including `poteto-mode`,
 `poteto-help`, and `setup-pstack`. It builds on native rewrites from
 [p3-stack at 09909ebb](https://github.com/uzairansaruzi/p3-stack/tree/09909ebb5c0125e27fad3e57d96b81e832696d69).
 The upstream-only `ketchup` skill remains vendor-neutral. Worker and comment-review
@@ -36,7 +36,8 @@ unspecified roles inherit the parent model.
 | `ports/t3-tools.json` | Tool names and definition paths at the pinned T3 revision |
 
 The p3 commit records reference provenance. The three-way merge base remains the
-original Cursor snapshot, and adapted files keep their original paths. This lets
+original Cursor snapshot, and explicit name mappings preserve the merge relationship. Pstack's `teach`
+and `tdd` install as `poteto-teach` and `poteto-tdd` to coexist with Matt's pack. This lets
 future Cursor updates be compared with your T3 rewrites.
 
 `p3-rewrite` and `p3-addition` describe initially imported p3 material; local fixes
