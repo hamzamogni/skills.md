@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Import a Git subtree, merge an editable skill pack, and install project links."""
 import argparse
+import hashlib
 import io
 import json
 import os
@@ -39,8 +40,12 @@ def source(root, name):
 def fetch(config, destination, ref=None):
     """Download Git metadata and only the selected subtree's file contents."""
     subtree = config["path"]
-    if not subtree or any(p in ("", ".", "..") for p in subtree.split("/")):
+    if not subtree or (subtree != "." and any(p in ("", ".", "..") for p in subtree.split("/"))):
         raise ValueError("Invalid upstream subtree")
+    included = config.get("include")
+    if included is not None:
+        if not included or any(not p or p.startswith("/") or any(x in ("", ".", "..") for x in p.split("/")) for p in included):
+            raise ValueError("Invalid import include paths")
     with tempfile.TemporaryDirectory() as temporary:
         checkout = Path(temporary)
         run("git", "init", "--quiet", str(checkout))
@@ -48,8 +53,15 @@ def fetch(config, destination, ref=None):
         run("git", "fetch", "--quiet", "--depth=1", "--filter=blob:none",
             "origin", ref or config["branch"], cwd=checkout)
         commit = run("git", "rev-parse", "FETCH_HEAD", cwd=checkout).stdout.decode().strip()
-        tree = run("git", "rev-parse", f"{commit}:{subtree}", cwd=checkout).stdout.decode().strip()
-        archive = run("git", "archive", f"{commit}:{subtree}", cwd=checkout).stdout
+        selected = commit if subtree == "." else f"{commit}:{subtree}"
+        if included is None:
+            tree = run("git", "rev-parse", f"{commit}^{{tree}}" if subtree == "." else selected, cwd=checkout).stdout.decode().strip()
+        else:
+            entries = run("git", "ls-tree", selected, "--", *included, cwd=checkout).stdout
+            if len(entries.splitlines()) != len(included):
+                raise ValueError("Every include path must exist and be a distinct Git tree entry")
+            tree = hashlib.sha256(entries).hexdigest()
+        archive = run("git", "archive", selected, *(included or []), cwd=checkout).stdout
         destination.mkdir(parents=True, exist_ok=True)
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             members = tar.getmembers()
@@ -150,7 +162,7 @@ def initialize(root, name):
         raise ValueError(f"Editable pack already exists: {pack}")
     snapshot(root, name)
     upstream = root / "upstream" / name
-    if not list((upstream / "skills").glob("*/SKILL.md")):
+    if not list((upstream / "skills").rglob("SKILL.md")):
         raise ValueError("The selected subtree must contain skills/<name>/SKILL.md folders")
     shutil.copytree(upstream / "skills", pack)
     for path, data in transform(files(pack), name).items():
@@ -164,7 +176,7 @@ def initialize(root, name):
 
 
 def merge(root, name, continuing=False):
-    from porting import adopt_hashes, excluded, manifest, report
+    from porting import adopt_hashes, excluded, manifest, report, map_contents, original_path
     config = source(root, name)
     upstream = read_json(root / "sources.lock.json")[name]
     lock_path = root / "adaptations.lock.json"
@@ -198,12 +210,12 @@ def merge(root, name, continuing=False):
     with tempfile.TemporaryDirectory() as temporary:
         old = Path(temporary) / "old"
         fetch(config, old, state["commit"])
-        base = transform(files(old / "skills"), name)
+        base = map_contents(transform(files(old / "skills"), name), policy)
     ours = files(pack)
-    theirs = transform(files(root / "upstream" / name / "skills"), name)
+    theirs = map_contents(transform(files(root / "upstream" / name / "skills"), name), policy)
     output, conflicts = dict(ours), []
     for path in sorted(base.keys() | theirs.keys()):
-        if policy is not None and excluded(policy, path):
+        if policy is not None and excluded(policy, original_path(policy, path)):
             continue
         data, conflict = merge_file(base.get(path), ours.get(path), theirs.get(path))
         if data is None:
@@ -239,6 +251,7 @@ def validate(root, allow_pending=False):
         for name, state in read_json(lock_path).items():
             if state.get("conflicts") or state.get("pending_port"):
                 raise ValueError(f"{name}: unresolved upstream merge")
+    seen_names = {}
     for path in (root / "skills").rglob("*"):
         if not path.is_file():
             continue
@@ -254,6 +267,9 @@ def validate(root, allow_pending=False):
         name = re.search(r"(?m)^name:\s*([a-z0-9-]+)\s*$", parts[1])
         if not name or name[1] != path.parent.name or not re.search(r"(?m)^description:\s*\S", parts[1]):
             raise ValueError(f"Invalid name or description: {path}")
+        if name[1] in seen_names:
+            raise ValueError(f"Duplicate skill names: {name[1]} in {seen_names[name[1]]} and {path}")
+        seen_names[name[1]] = path
     print("Skill names, descriptions, and merge state are valid")
     from porting import audit
     for policy in sorted((root / "ports").glob("*.json")):
@@ -275,16 +291,30 @@ def install(root, project, provider):
         if (entry / "SKILL.md").is_file():
             candidates.append(entry)
         else:
-            candidates.extend(p.parent for p in sorted(entry.glob("*/SKILL.md")))
+            candidates.extend(p.parent for p in sorted(entry.rglob("SKILL.md")))
     names = [p.name for p in candidates]
     if len(set(names)) != len(names):
         raise ValueError("Duplicate skill names across personal and imported skills")
+    # Only declared, collection-owned alias links can be migrated automatically.
+    legacy_targets = set()
+    for policy_path in (root / "ports").glob("*.json"):
+        policy = read_json(policy_path)
+        for old in policy.get("path_aliases", {}):
+            legacy_targets.add((Path(old).name, (root / "skills" / policy_path.stem / old).resolve()))
+    migrations = []
     # Preflight the whole plan before creating a link.
     for entry in candidates:
         target = destination / entry.name
         if target.exists() or target.is_symlink():
-            if not target.is_symlink() or target.resolve() != entry.resolve():
+            if target.is_symlink() and (target.name, target.resolve()) in legacy_targets:
+                migrations.append(target)
+            elif not target.is_symlink() or target.resolve() != entry.resolve():
                 raise ValueError(f"Refusing to replace an existing skill: {target}")
+    if destination.exists():
+        migrations.extend(target for target in destination.iterdir()
+                          if target.is_symlink() and (target.name, target.resolve()) in legacy_targets and target not in migrations)
+    for target in migrations:
+        target.unlink()
     destination.mkdir(parents=True, exist_ok=True)
     for entry in candidates:
         target = destination / entry.name

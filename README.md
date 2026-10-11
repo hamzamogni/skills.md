@@ -2,7 +2,12 @@
 
 My skills and adapted skill packs, with reviewable updates from other authors.
 The first pack is [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/main/pstack).
-Only the `pstack` folder is imported from `cursor/plugins`.
+Only the `pstack` folder is imported from `cursor/plugins`. The second pack is
+[Matt Pocock's skills](https://github.com/mattpocock/skills), tracking its `skills/`
+directory and MIT license, with 27 published skills installed.
+
+See [the combined workflow](docs/combined-workflow.md) for the one-pager setup,
+`matt-mode`, and the distinct teaching, TDD, and review commands.
 
 ## Use the skills in T3 Code
 
@@ -20,12 +25,13 @@ for Codex or `.claude/skills` for Claude. Keep this checkout at the same path.
 Existing skills with the same name are preserved and cause installation to stop.
 Re-running installation adds missing links and leaves matching links alone.
 
-The pack keeps all 52 upstream skill names and builds on
+The pstack pack keeps 52 skills and builds on
 [p3-stack's native T3 port](https://github.com/uzairansaruzi/p3-stack).
 Delegation, model roles, PR watches, scheduling, history, and runtime proof use
 T3 instructions. Cursor scripts stay in the raw snapshot and are excluded from
 installation. Start with `setup-pstack` to choose model roles, or let unspecified
-roles inherit your parent model.
+roles inherit your parent model. Pstack's teaching and TDD commands are now
+`poteto-teach` and `poteto-tdd`; Matt's are `teach` and `tdd`.
 
 Read [the port and tool mapping](docs/t3-port.md) and the
 [T3 runtime contract](skills/pstack/poteto-mode/references/t3-runtime.md).
@@ -46,8 +52,8 @@ Run `python3 scripts/skills.py validate` after edits.
 
 ## Review upstream updates
 
-GitHub Actions checks pstack every six hours, at minute 23 UTC. A changed pstack
-tree creates a pull request requesting `hamzamogni`'s review. GitHub delivers the
+GitHub Actions checks each source every six hours, at minute 23 UTC. Changed
+selected content creates a source-specific PR requesting `hamzamogni`'s review. GitHub delivers the
 review notification through your account's web, mobile, and email settings.
 Enable review-request notifications in [GitHub notification settings](https://github.com/settings/notifications)
 if you want email. A notification is requested; email delivery depends on those settings.
@@ -69,7 +75,7 @@ Workflow permissions**. That setting is enabled during initial setup.
 | Path | Purpose |
 | --- | --- |
 | `skills/` | Editable pstack adaptations and personal skills |
-| `upstream/pstack/` | Unmodified upstream snapshot, including its MIT license |
+| `upstream/<source>/` | Unmodified selected snapshots, including MIT licenses |
 | `sources.json` | Repository, branch, subtree, and reviewer for each source |
 | `sources.lock.json` | Commit and subtree hash of each imported snapshot |
 | `adaptations.lock.json` | Upstream revision used as each adaptation's merge base |
@@ -83,11 +89,13 @@ CLI, which is available on GitHub's Ubuntu runners. Run the behavior tests with
 Additional authors can be added to `sources.json` with a separate source name and
 an explicit subtree. Source packs must include a license. Import with
 `python3 scripts/skills.py init <source>` to create its snapshot, editable copy,
-and merge base. The first T3 port is specific to pstack;
-other packs need their own runtime adaptation.
+and merge base. Packs can use nested skill categories. Each new pack needs its own runtime
+adaptation and a reviewed port map.
 
 Imported pstack material is copyright 2026 Lauren Tan and licensed under
 [MIT](upstream/pstack/LICENSE). The editable pack retains her notice and Uzair
 Ansar's T3 adaptation notice in [its license](skills/pstack/LICENSE).
+Matt's pack retains his [MIT notice](skills/matt-pocock/LICENSE). The three local
+helpers are authored here rather than imported from either pack.
 Original code and documentation in this repository are reserved to the author
 unless a separate license is added.

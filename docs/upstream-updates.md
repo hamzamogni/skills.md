@@ -1,6 +1,6 @@
 # Review and merge an update
 
-GitHub Actions checks only `cursor/plugins/pstack` every six hours. A changed
+GitHub Actions checks `cursor/plugins/pstack` and Matt Pocock's selected `skills/` plus `LICENSE` content every six hours, with one separate PR per source. A changed
 subtree opens one review-request PR. It updates the raw snapshot and its lock,
 leaving your editable skills alone. It never auto-merges. Email depends on your
 GitHub review-request notification settings. Run **Actions → Check upstream
@@ -10,6 +10,10 @@ You can perform these steps yourself or ask an agent to help. Start with a clean
 checkout, or commit your current edits first.
 
 ## 1. Read what changed
+
+The examples below use `pstack`. For Matt's pack, replace every source argument
+with `matt-pocock`, use `skills/matt-pocock`, and commit `ports/matt-pocock.json`.
+Both packs use the same approval and acceptance steps.
 
 From the skills.md checkout:
 
@@ -25,7 +29,7 @@ you deferred. These reports are local and ignored by Git. Inspect the PR diff fo
 README and license changes too; the report covers the upstream `skills` directory.
 
 The upstream comparison link can include other Cursor plugins; this PR imports
-only pstack. Do not edit `upstream/pstack` or execute its downloaded scripts.
+only that source's selected content. Do not edit `upstream/<source>` or execute its downloaded scripts.
 
 ## 2. Apply the text merge
 
@@ -52,7 +56,10 @@ intent. Do not choose the entire upstream file just to clear markers.
 
 ## 3. Review meaning and map new files
 
-Read every changed instruction and its bundled references. Use the mappings in
+Read every changed instruction and its bundled references. Report paths are
+upstream-relative; explicit aliases can point to different editable paths. Matt's
+`engineering/code-review` maps to `engineering/matt-code-review`; pstack's `teach`
+and `tdd` map to `poteto-teach` and `poteto-tdd`. Use the mappings in
 [the port guide](t3-port.md). Watch for:
 
 - Changed tool schemas, even when a tool name stays the same.
@@ -65,7 +72,7 @@ Read every changed instruction and its bundled references. Use the mappings in
 - New files that need a port, and deletions that leave broken links. Renames
   behave as add/delete, so inspect both paths and transfer local edits yourself.
 - License changes and useful behavior hidden in excluded Cursor scripts. Carry
-  new notices into the editable pack manually, preserving the existing p3 notice;
+  new notices into the editable pack manually, preserving any existing notices;
   the skill-file merge does not merge the top-level license.
 
 For a new file, edit its T3 version, then classify the upstream-relative path:
@@ -78,7 +85,8 @@ python3 scripts/skills.py classify pstack new-skill/SKILL.md \
 Use `upstream-retained` for vendor-neutral content, or `excluded` when it should
 not be installed. For an exclusion, remove the copied file from `skills/pstack`
 yourself. Classification records your decision; it does not edit or delete files.
-Keep existing filenames stable when possible. Mapping does not automatically
+Keep existing paths stable unless an explicit `path_aliases` migration maps the
+upstream path to its editable path. Keep source map keys upstream-relative. Mapping does not automatically
 relocate local edits between renamed files.
 
 ## 4. Accept, verify, and publish
@@ -119,7 +127,7 @@ lock keeps its older base and the map keeps the last accepted hashes. Later
 reports and merges cover the accumulated updates.
 
 To discard an uncommitted merge attempt, preserve earlier personal edits,
-restore `skills/pstack`, `ports/pstack.json`, and `adaptations.lock.json` from Git,
+restore that source's editable pack, its port map, and `adaptations.lock.json` from Git,
 then remove `.sync-conflicts/pstack`. Inspect untracked new files separately;
 `git restore` does not remove them. Avoid broad clean commands over your skills.
 Generated `.work` reports can be deleted and regenerated.
@@ -131,7 +139,7 @@ python3 scripts/skills.py sync pstack
 python3 scripts/skills.py report pstack --diff
 ```
 
-The importer compares subtree hashes. Changes elsewhere in Cursor leave the
-snapshot and lock unchanged. A pending PR pauses new automatic proposals until
+The importer compares selected content hashes. Changes outside a source's
+selection leave its snapshot and lock unchanged. A pending PR pauses new automatic proposals until
 you close or merge it. Closing without accepting the snapshot can cause the same
 update to be proposed again.

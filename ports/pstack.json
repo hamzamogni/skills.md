@@ -666,5 +666,13 @@
       "strategy": "support",
       "reference_path": "agents/p3-agent.md"
     }
+  },
+  "path_aliases": {
+    "tdd/": "poteto-tdd/",
+    "teach/": "poteto-teach/"
+  },
+  "skill_aliases": {
+    "tdd": "poteto-tdd",
+    "teach": "poteto-teach"
   }
 }

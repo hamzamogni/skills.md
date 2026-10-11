@@ -98,6 +98,9 @@ def build(reference, destination, root=ROOT):
         path = f"poteto-mode/references/agents/{name}"
         output[path] = rewrite(ref_path.read_bytes(), path)
         policy[path] = {"strategy": "support", "reference_path": f"agents/{ref_path.name}"}
+    from porting import manifest, map_contents
+    current_policy = manifest(root, "pstack") or {}
+    output = map_contents(output, current_policy)
     destination.mkdir(parents=True)
     for path, data in output.items():
         target = destination / path
@@ -107,13 +110,17 @@ def build(reference, destination, root=ROOT):
         if original.exists():
             target.chmod(original.stat().st_mode & 0o777)
     shutil.copyfile(reference / "LICENSE", destination / "LICENSE")
-    return {
+    result = {
         "schema_version": 1,
         "reference": {"repository": "https://github.com/uzairansaruzi/p3-stack", "commit": tracked},
         "aliases": ALIASES,
         "excluded_prefixes": EXCLUDED,
         "files": policy,
     }
+    for key in ("path_aliases", "skill_aliases"):
+        if key in current_policy:
+            result[key] = current_policy[key]
+    return result
 
 
 def main():

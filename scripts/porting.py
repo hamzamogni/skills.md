@@ -8,7 +8,7 @@ from skills import files, read_json, write_json
 LEGACY = re.compile(
     r"subagent_type|\.cursor/|agent-transcripts|\bAskQuestion\b|\bTask tool\b|/loop\b|"
     r"scripts/(?:watch-pr|orch)/|worktree-audit\.sh|\bp3-(?:mode|help|agent|models)\b|"
-    r"poteto-models\.md|That guidance replaces Cursor-specific",
+    r"poteto-models\.md|That guidance replaces Cursor-specific|\bSkill tool\b|/compact\b|/clear\b|claude --bg",
     re.IGNORECASE,
 )
 TOOL = re.compile(
@@ -38,6 +38,47 @@ def excluded(policy, path):
         path.startswith(prefix) for prefix in policy.get("excluded_prefixes", {}))
 
 
+def mapped_path(policy, path):
+    for old, new in (policy or {}).get("path_aliases", {}).items():
+        if path.startswith(old):
+            target = new + path[len(old):]
+            if Path(target).is_absolute() or ".." in Path(target).parts:
+                raise ValueError("Port aliases must remain inside the editable pack")
+            return target
+    return path
+
+
+def original_path(policy, path):
+    for old, new in (policy or {}).get("path_aliases", {}).items():
+        if path.startswith(new):
+            return old + path[len(new):]
+    return path
+
+
+def map_contents(contents, policy):
+    """Apply explicit name migrations to both merge sides without changing transform."""
+    result = {}
+    for path, data in contents.items():
+        target = mapped_path(policy, path)
+        if target in result:
+            raise ValueError(f"Port path aliases collide at {target}")
+        if path.endswith((".md", ".yaml")):
+            text = data.decode()
+            for old, new in (policy or {}).get("skill_aliases", {}).items():
+                for marker in ("`", '"', "'", "**"):
+                    text = text.replace(f"{marker}{old}{marker}", f"{marker}{new}{marker}")
+                text = re.sub(rf"(?<![\w./:-])[/\$]{re.escape(old)}\b(?!/)",
+                              lambda m: m[0][0] + new, text)
+                text = text.replace(f"../{old}/", f"../{new}/")
+                text = text.replace(f"./{old}/", f"./{new}/")
+                text = text.replace(f"[{old}]", f"[{new}]")
+            if target.endswith("/SKILL.md"):
+                text = re.sub(r"(?m)^name:.*$", f"name: {Path(target).parent.name}", text, count=1)
+            data = text.encode()
+        result[target] = data
+    return result
+
+
 def prose(text):
     """Ignore fenced examples when checking Markdown links, not runtime remnants."""
     return re.sub(r"(?ms)^\s*(`{3,}|~{3,})[^\n]*\n.*?^\s*\1\s*$", "", text)
@@ -60,16 +101,16 @@ def audit(root, name):
         for path in files(root / "upstream" / name / "skills"):
             if path not in policy["files"] and not excluded(policy, path):
                 problems.append(f"Unmapped upstream file: {path}; classify it before accepting the port")
-            elif not excluded(policy, path) and not (pack / path).is_file():
+            elif not excluded(policy, path) and not (pack / mapped_path(policy, path)).is_file():
                 problems.append(f"Mapped upstream file missing from installed pack: {path}; restore or exclude it")
     for path, data in files(pack).items():
-        if excluded(policy, path):
+        if excluded(policy, original_path(policy, path)):
             problems.append(f"Excluded upstream file reintroduced: {path}")
         if not path.endswith(".md"):
             continue
         text = data.decode()
         # The runtime guide documents the historical mapping itself.
-        if path != "poteto-mode/references/t3-runtime.md":
+        if path != "poteto-mode/references/t3-runtime.md" and path not in policy.get("runtime_guides", []):
             for match in LEGACY.finditer(text):
                 line = text.count("\n", 0, match.start()) + 1
                 problems.append(f"{path}:{line}: legacy runtime instruction {match[0]!r}")
@@ -111,6 +152,9 @@ def report(root, name, save_diff=False):
             action = "Review native workflow and tool arguments" if hits else "Review meaning and local edits"
             if hits:
                 action += "; terms: " + ", ".join(hits[:10])
+        target = mapped_path(policy, path)
+        if target != path:
+            action += f"; adapted path: `{target}`"
         rows.append(f"| `{path}` | {status} | {action} |")
     text = "# Upstream update review\n\n"
     text += "This compares the imported snapshot with the last adopted file hashes in the port map.\n"
