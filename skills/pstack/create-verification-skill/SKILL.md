@@ -4,7 +4,7 @@ description: "Generate a project-local verification skill that drives your app t
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Create a verification skill
 

@@ -4,7 +4,7 @@ description: "Apply when sequencing an addition, refactor, or rewrite. Remove de
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Subtract Before You Add
 

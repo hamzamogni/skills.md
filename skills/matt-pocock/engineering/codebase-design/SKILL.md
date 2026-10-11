@@ -3,7 +3,7 @@ name: codebase-design
 description: Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Codebase Design
 

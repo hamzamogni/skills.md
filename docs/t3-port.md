@@ -18,7 +18,10 @@ briefs are bundled in `poteto-mode/references/agents`.
 | External app control recipes | Available `preview_*`, `device_*`, or a real CLI driver | Capability availability and actual behavior proof |
 
 The [runtime contract](../skills/pstack/poteto-mode/references/t3-runtime.md) is the
-common rulebook. Each skill links to it. It overrides inherited assumptions about
+common rulebook. Each skill carries and links to a generated copy, with the worker
+brief and license notices required for a portable install. `bundles.json` declares
+those resources; `package_skills.py build` refreshes them and validation checks
+their bytes and references in the flat CLI layout. The contract overrides inherited assumptions about
 tool inputs, thread ownership, and user authorization. Delegated PR workers return
 state to their parent for watching. The long-running playbooks retain their gates.
 

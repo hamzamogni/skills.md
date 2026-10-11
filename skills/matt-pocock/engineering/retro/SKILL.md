@@ -4,7 +4,7 @@ description: "Conduct a retrospective on a coding session."
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 The user has asked for a **retrospective**. You are suggesting improvements to the coding agent's **environment** to improve future runs.
 

@@ -4,7 +4,7 @@ description: "Apply before you trust, report, or act on a number you measured: a
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Explain the Number
 

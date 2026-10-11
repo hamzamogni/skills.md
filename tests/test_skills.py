@@ -97,6 +97,29 @@ class SkillsBehavior(unittest.TestCase):
         self.quiet(skills.merge, self.root, "pstack", continuing=True)
         self.assertEqual(self.quiet(porting.report, self.root, "pstack"), [])
 
+    def test_native_update_keeps_bundles_and_requires_refresh_before_acceptance(self):
+        import package_skills
+        local = self.native()
+        local.write_text(local.read_text().replace('# Example\n', 'Read [runtime](references/t3-runtime.md).\n\n# Example\n'))
+        guide = self.pack / 'runtime.md'
+        guide.write_text('Original native contract\n')
+        skills.write_json(self.root / 'bundles.json', {'skills/pstack': {
+            'skills/pstack/runtime.md': 'references/t3-runtime.md'}})
+        package_skills.build(self.root)
+        raw = self.remote / 'pstack/skills/example/SKILL.md'
+        self.update('pstack/skills/example/SKILL.md', raw.read_text().replace('Third', 'Updated third'))
+        self.quiet(skills.merge, self.root, 'pstack')
+        self.assertIn('Updated third', local.read_text())
+        self.assertEqual((self.pack / 'example/references/t3-runtime.md').read_text(), 'Original native contract\n')
+        guide.write_text('Reviewed native contract\n')
+        with self.assertRaisesRegex(ValueError, 'Stale bundle'):
+            self.quiet(skills.merge, self.root, 'pstack', continuing=True)
+        self.assertTrue(skills.read_json(self.root / 'adaptations.lock.json')['pstack']['pending_port'])
+        package_skills.build(self.root)
+        self.quiet(skills.merge, self.root, 'pstack', continuing=True)
+        self.assertEqual((self.pack / 'example/references/t3-runtime.md').read_text(), 'Reviewed native contract\n')
+        self.assertNotIn('pending_port', skills.read_json(self.root / 'adaptations.lock.json')['pstack'])
+
     def test_advanced_snapshot_cannot_be_mistakenly_accepted_as_pending_port(self):
         local = self.native()
         raw = self.remote / "pstack/skills/example/SKILL.md"

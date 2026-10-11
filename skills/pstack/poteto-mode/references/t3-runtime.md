@@ -3,7 +3,10 @@
 This pack keeps the upstream skill names and adapts p3-stack's native T3 workflows.
 Read this contract before executing a skill. Resolve bundled paths relative to
 the file that names them, then put absolute paths into worker briefs. The installed
-skill directories are siblings even when they are linked from another checkout.
+skill directories may be copied or linked from another checkout. Resolve other
+skills by name through the session's skill catalog and use its actual absolute
+`SKILL.md` paths. Prefer this collection's project entry over a same-named global
+installation; do not infer repository category folders from an installed path.
 
 ## Discover the session before using it
 
@@ -125,11 +128,18 @@ worker rounds. Do not fix unrelated projects because a playbook says to keep goi
 
 ## Install or update this pack
 
-From the skills.md checkout, run `python3 scripts/skills.py install --provider codex
---project /absolute/path/to/project`, or use `--provider claude`. Restart the agent
+From the target project, run
+`npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex`,
+or use `--agent claude-code`. Install the full collection because its workflows
+call other skills; the CLI does not infer those dependencies. Restart the agent
 session in T3 Code and select `$poteto-mode`. Slash aliases depend on provider and
 composer settings. Invoke the mode in each new chat; this repository does not
 install a persistent application mode.
+
+After an approved repository update, run `npx skills@latest update -p` in the
+installed project. Installed copies do not track a source checkout live. The
+repository's Actions workflow still proposes upstream updates for human review;
+the CLI update refreshes installed copies from this repository's accepted main.
 
 The editable pack is `skills/pstack`. Source snapshots and port mapping metadata
 live outside the installed skill folders. The maintenance instructions are in

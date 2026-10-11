@@ -4,7 +4,7 @@ description: "Periodic pass that keeps a project's verification skill and featur
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Maintain a verification skill
 

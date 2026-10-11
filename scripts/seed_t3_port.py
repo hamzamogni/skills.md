@@ -53,8 +53,7 @@ def rewrite(data, path, original=None):
             front = re.sub(r"(?m)^disable-model-invocation:.*\n?", "", front)
             if invocation:
                 front = front.rstrip() + "\n" + invocation[0] + "\n"
-        import os
-        runtime = os.path.relpath("poteto-mode/references/t3-runtime.md", Path(path).parent).replace(os.sep, "/")
+        runtime = "references/t3-runtime.md"
         text = "---" + front + "---\n\n" + f"Read the [T3 runtime contract]({runtime}) before executing this skill.\n\n" + parts[2].lstrip()
     return text.encode()
 
@@ -84,7 +83,7 @@ def build(reference, destination, root=ROOT):
             output[path] = transform({path: data})[path]
             # The upstream-only ketchup skill is vendor neutral; replace the old bridge.
             from skills import BRIDGE
-            text = output[path].decode().replace(BRIDGE, "\n\nRead the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.\n\n")
+            text = output[path].decode().replace(BRIDGE, "\n\nRead the [T3 runtime contract](references/t3-runtime.md) before executing this skill.\n\n")
             output[path] = text.encode()
             policy[path] = {"strategy": "upstream-retained"}
         policy[path]["upstream_sha256"] = hashlib.sha256(data).hexdigest()

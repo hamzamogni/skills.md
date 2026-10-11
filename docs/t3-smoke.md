@@ -4,6 +4,11 @@ Use a disposable project and fresh session after installation. Run scenarios
 affected by the update. Record the T3 version, provider, calls, observable result,
 and missing capabilities. Read the activity timeline when prose omits what ran.
 
+Install with `npx skills@latest add hamzamogni/skills.md --skill '*' --agent codex`
+from the disposable project, or use `--agent claude-code`. Confirm the runtime
+guide is inside the selected skill and `matt-mode` resolves phase skills using
+their discovered installed paths. Repository category folders are not installed.
+
 1. Select `poteto-mode` and ask it to explain the project. Confirm it reads the
    runtime contract and finds bundled references. Discovery alone proves neither.
 2. Run `setup-pstack`. Check proposed models against `orchestrator_capabilities`

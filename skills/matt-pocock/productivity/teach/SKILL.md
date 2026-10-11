@@ -5,7 +5,7 @@ disable-model-invocation: true
 argument-hint: "What would you like to learn about?"
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
 

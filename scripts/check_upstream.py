@@ -47,6 +47,7 @@ def main():
             steps = f'''python3 scripts/skills.py report {name} --diff
 python3 scripts/skills.py merge {name}
 # Resolve conflicts and review native T3 behavior, even after a clean text merge.
+python3 scripts/package_skills.py build
 python3 scripts/skills.py merge {name} --continue
 python3 scripts/skills.py validate'''
         else:

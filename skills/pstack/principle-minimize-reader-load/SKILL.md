@@ -4,7 +4,7 @@ description: "Apply when reviewing or shaping code that's hard to trace. Count l
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../poteto-mode/references/t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 # Minimize Reader Load
 

@@ -4,7 +4,7 @@ description: Implement a spec's ticket graph on one integration branch, with nat
 disable-model-invocation: true
 ---
 
-Read the [T3 runtime contract](../../t3-runtime.md) before executing this skill.
+Read the [T3 runtime contract](references/t3-runtime.md) before executing this skill.
 
 Read the spec and tickets using the project's configured issue tracker. If that
 configuration is missing, request `setup-matt-pocock-skills`. Treat dependencies

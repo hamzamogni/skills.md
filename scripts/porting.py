@@ -96,6 +96,9 @@ def audit(root, name):
             problems.append(f"Invalid mapping strategy: {path}")
     state = read_json(root / "adaptations.lock.json")[name]
     imported = read_json(root / "sources.lock.json")[name]
+    from package_skills import bundle_sources
+    bundled = {path.resolve() for path in bundle_sources(root)}
+    bundled_guides = {path for path in bundled if path.name == "t3-runtime.md"}
     # Raw-only updates may be intentionally deferred; audit their coverage on adoption.
     if state["tree"] == imported["tree"] or state.get("pending_port"):
         for path in files(root / "upstream" / name / "skills"):
@@ -104,13 +107,14 @@ def audit(root, name):
             elif not excluded(policy, path) and not (pack / mapped_path(policy, path)).is_file():
                 problems.append(f"Mapped upstream file missing from installed pack: {path}; restore or exclude it")
     for path, data in files(pack).items():
-        if excluded(policy, original_path(policy, path)):
+        # Explicit, byte-checked native bundles may occupy an excluded references directory.
+        if excluded(policy, original_path(policy, path)) and (pack / path).resolve() not in bundled:
             problems.append(f"Excluded upstream file reintroduced: {path}")
         if not path.endswith(".md"):
             continue
         text = data.decode()
         # The runtime guide documents the historical mapping itself.
-        if path != "poteto-mode/references/t3-runtime.md" and path not in policy.get("runtime_guides", []):
+        if (pack / path).resolve() not in bundled_guides and path != "poteto-mode/references/t3-runtime.md" and path not in policy.get("runtime_guides", []):
             for match in LEGACY.finditer(text):
                 line = text.count("\n", 0, match.start()) + 1
                 problems.append(f"{path}:{line}: legacy runtime instruction {match[0]!r}")
