@@ -11,5 +11,9 @@
   "skills/matt-mode": {
     "skills/matt-pocock/t3-runtime.md": "references/t3-runtime.md",
     "skills/matt-pocock/LICENSE": "references/matt-pocock-LICENSE"
+  },
+  "skills/shadcn-ui": {
+    "skills/shadcn-ui/shadcn/references/t3-runtime.md": "references/t3-runtime.md",
+    "skills/shadcn-ui/LICENSE": "LICENSE"
   }
 }

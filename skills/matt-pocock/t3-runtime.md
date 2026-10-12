@@ -11,6 +11,14 @@ not required or assumed.
 
 ## Native execution
 
+For UI prototypes, implementation, or component review in a project using or
+adopting shadcn/ui, read the installed `shadcn` skill by its catalog path. Follow
+its project inspection and component rules within the current phase. Include its
+absolute path, project cwd, and relevant design decisions in UI worker briefs.
+One worker owns shared theme and component files when several tickets run at once.
+Keep product decisions in the spec, and verify interactive states in the browser.
+Do not adopt shadcn in an existing app unless the task calls for that adoption.
+
 - Discover `orchestrator_capabilities` before selecting worker models. Use
   `delegate_task` with a self-contained brief, `mode: "async"`, goal, absolute input
   paths, exclusive write scope, checks, and expected output. Missing model roles

@@ -16,5 +16,17 @@
       "skills"
     ],
     "reviewer": "hamzamogni"
+  },
+  "shadcn-ui": {
+    "url": "https://github.com/shadcn-ui/ui.git",
+    "web_url": "https://github.com/shadcn-ui/ui",
+    "branch": "main",
+    "path": ".",
+    "include": [
+      "LICENSE.md",
+      "skills/shadcn"
+    ],
+    "reviewer": "hamzamogni",
+    "license": "LICENSE.md"
   }
 }

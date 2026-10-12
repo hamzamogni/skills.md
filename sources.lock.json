@@ -6,5 +6,9 @@
   "matt-pocock": {
     "commit": "49dd158d1076134a641b33efb035946536778336",
     "tree": "4b5efab20c645c1aa4648fbbc79fc10152e89e8b17cdf83e3ab063c92c14dfc2"
+  },
+  "shadcn-ui": {
+    "commit": "02cad61166c4c20edbc8a3f71bd720eed4c1f49b",
+    "tree": "a1f8b51eb8d881aaa074964cf2fcf3c6e573cdaf68333203826e3a70dd3aa29e"
   }
 }

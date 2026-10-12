@@ -35,3 +35,19 @@ their discovered installed paths. Repository category folders are not installed.
 PR watches and schedules change real application state. Run those checks only
 when you want those actions. For prose-only changes, discovery and a read-only
 delegation can be sufficient.
+
+## Shadcn UI workflows
+
+In a disposable project, start a greenfield UI prototype with agreed framework,
+base, preset, and registry choices. Confirm the selected phase reads the installed
+`shadcn` guidance, explicitly runs project inspection in that cwd, and returns
+prototype evidence to the decision session. Specs and tickets must retain the
+agreed interaction states and blocking dependencies.
+
+In a disposable existing-app fixture, customize a Button and theme before asking
+for a settings form. Confirm the builder reuses those files and previews any
+component update instead of resetting configuration. Check the actual UI's
+validation, loading, errors, keyboard behavior, mobile layout, and supported dark
+mode. Give one worker ownership of shared theme files if tickets run concurrently.
+Read-only planning proves only the handback and preservation decisions. Report
+missing CLI, browser, or native T3 execution separately.

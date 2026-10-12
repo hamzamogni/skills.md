@@ -10,6 +10,13 @@ installation; do not infer repository category folders from an installed path.
 
 ## Discover the session before using it
 
+For UI work in a project using or adopting shadcn/ui, read the installed `shadcn`
+skill by its catalog path. Use its project inspection and component rules within
+the chosen engineering route. Include its absolute path, project cwd, and agreed
+UI behavior in worker briefs. Give one worker ownership of shared theme and
+component files. Verify loading, empty, error, keyboard, and responsive behavior
+in the running app. Adopting a new component system must be part of the user's task.
+
 Call `orchestrator_capabilities` when delegation or model selection is needed.
 Use the actual T3 MCP catalog and input schemas exposed in the current session.
 Tool names below are public names; a provider may expose a namespaced spelling or

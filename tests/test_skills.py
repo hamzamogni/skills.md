@@ -216,6 +216,46 @@ class SkillsBehavior(unittest.TestCase):
         self.assertEqual((project / ".agents/skills/other").resolve(),
                          (self.root / "skills/matt-pocock/engineering/other").resolve())
 
+    def test_nested_skill_selection_preserves_license_name_and_merges_notice_updates(self):
+        self.put("LICENSE.md", "Original notice\n")
+        self.put("skills/shadcn/SKILL.md", "---\nname: shadcn\ndescription: UI\n---\nUI guidance\n")
+        self.put("skills/other/SKILL.md", "Unselected skill\n")
+        self.commit()
+        config = skills.read_json(self.root / "sources.json")
+        config["shadcn-ui"] = {"url": str(self.remote), "branch": "main", "path": ".",
+                               "include": ["LICENSE.md", "skills/shadcn"], "license": "LICENSE.md"}
+        skills.write_json(self.root / "sources.json", config)
+        self.quiet(skills.initialize, self.root, "shadcn-ui")
+        self.native()
+        raw = self.root / 'upstream/shadcn-ui/skills/shadcn/SKILL.md'
+        skills.write_json(self.root / 'ports/shadcn-ui.json', {
+            'schema_version': 1, 'excluded_prefixes': {},
+            'license_sha256': hashlib.sha256((self.root / 'upstream/shadcn-ui/LICENSE.md').read_bytes()).hexdigest(),
+            'files': {'shadcn/SKILL.md': {'strategy': 'upstream-retained',
+                                        'upstream_sha256': hashlib.sha256(raw.read_bytes()).hexdigest()}}})
+        skills.write_json(self.root / 'bundles.json', {'skills/shadcn-ui': {'skills/shadcn-ui/LICENSE': 'LICENSE'}})
+        import package_skills
+        package_skills.build(self.root)
+        self.assertEqual(set(skills.files(self.root / "upstream/shadcn-ui")),
+                         {"LICENSE.md", "skills/shadcn/SKILL.md"})
+        self.put("skills/other/SKILL.md", "Unrelated update\n")
+        self.commit()
+        self.assertFalse(self.quiet(skills.snapshot, self.root, "shadcn-ui"))
+        self.put("LICENSE.md", "Updated notice\n")
+        self.commit()
+        self.quiet(skills.snapshot, self.root, "shadcn-ui")
+        self.assertEqual((self.root / "skills/shadcn-ui/LICENSE").read_text(), "Original notice\n")
+        self.assertIn('LICENSE.md', '\n'.join(self.quiet(porting.report, self.root, 'shadcn-ui', save_diff=True)))
+        self.assertIn('Updated notice', (self.root / '.work/shadcn-ui-upstream.diff').read_text())
+        self.quiet(skills.merge, self.root, "shadcn-ui")
+        self.assertEqual((self.root / "skills/shadcn-ui/LICENSE").read_text(), "Updated notice\n")
+        with self.assertRaisesRegex(ValueError, 'Stale bundle'):
+            self.quiet(skills.merge, self.root, 'shadcn-ui', continuing=True)
+        package_skills.build(self.root)
+        self.quiet(skills.merge, self.root, 'shadcn-ui', continuing=True)
+        self.assertEqual((self.root / 'skills/shadcn-ui/shadcn/LICENSE').read_text(), 'Updated notice\n')
+        self.assertEqual(self.quiet(porting.report, self.root, 'shadcn-ui'), [])
+
     def test_alias_migration_merges_upstream_into_originally_named_skill(self):
         self.native()
         policy = porting.manifest(self.root, "pstack")
@@ -285,13 +325,15 @@ class SkillsBehavior(unittest.TestCase):
             self.quiet(skills.install, self.root, project, "codex")
         self.assertEqual(link.resolve(), foreign.resolve())
 
-    def test_two_source_updater_creates_independent_review_branches(self):
+    def test_three_source_updater_creates_independent_review_branches(self):
         self.native()
         configs = skills.read_json(self.root / "sources.json")
         configs["pstack"].update(web_url="https://example.invalid/source", reviewer="maintainer")
         configs["other"] = dict(configs["pstack"])
+        configs["third"] = dict(configs["pstack"])
         skills.write_json(self.root / "sources.json", configs)
         self.quiet(skills.initialize, self.root, "other")
+        self.quiet(skills.initialize, self.root, "third")
         skills.run("git", "init", "--quiet", "-b", "main", str(self.root))
         skills.run("git", "config", "user.name", "Test", cwd=self.root)
         skills.run("git", "config", "user.email", "test@example.invalid", cwd=self.root)
@@ -319,10 +361,12 @@ class SkillsBehavior(unittest.TestCase):
         with patch.object(check_upstream, "ROOT", self.root), patch.object(check_upstream, "command", command), \
                 patch.dict(check_upstream.os.environ, {"GITHUB_REPOSITORY": "owner/collection"}):
             self.quiet(check_upstream.main)
-        self.assertEqual([row[0] for row in created], ["sync/pstack", "sync/other"])
+        self.assertEqual([row[0] for row in created], ["sync/pstack", "sync/other", "sync/third"])
         self.assertIn("report pstack --diff", created[0][1])
         self.assertEqual(created[0][2]["other"], initial["other"])
         self.assertEqual(created[1][2]["pstack"], initial["pstack"])
+        self.assertEqual(created[2][2]["pstack"], initial["pstack"])
+        self.assertEqual(created[2][2]["other"], initial["other"])
         self.assertEqual(skills.run("git", "branch", "--show-current", cwd=self.root).stdout.strip(), b"main")
         self.assertEqual(skills.read_json(self.root / "sources.lock.json"), initial)
 

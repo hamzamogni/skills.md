@@ -5,6 +5,9 @@ The first pack is [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/m
 Only the `pstack` folder is imported from `cursor/plugins`. The second pack is
 [Matt Pocock's skills](https://github.com/mattpocock/skills), tracking its `skills/`
 directory and MIT license, with 27 published skills installed.
+The third pack is [shadcn/ui's skill](https://ui.shadcn.com/docs/skills), tracking
+only `skills/shadcn` and `LICENSE.md` from `shadcn-ui/ui`. The collection installs
+83 adapted skills. Shadcn supplies UI guidance inside the selected Matt or poteto phase.
 
 See [the combined workflow](docs/combined-workflow.md) for the one-pager setup,
 `matt-mode`, and the distinct teaching, TDD, and review commands.
@@ -35,6 +38,8 @@ run `npx skills@latest update -p` in the project to refresh its existing skills.
 Rerun the full `add` command to include newly added skills. The CLI can overwrite
 same-named installed skills; move any personal edits into this repository first.
 See [installation and migration](docs/combined-workflow.md#install-and-set-up-a-project).
+Rerun `add` to include the new `shadcn` skill in an older installation.
+See [UI workflows](docs/shadcn-workflow.md) for greenfield and existing-app examples.
 
 The pstack pack keeps 52 skills and builds on
 [p3-stack's native T3 port](https://github.com/uzairansaruzi/p3-stack).
@@ -89,7 +94,7 @@ Workflow permissions**. That setting is enabled during initial setup.
 
 | Path | Purpose |
 | --- | --- |
-| `skills/` | Editable pstack adaptations and personal skills |
+| `skills/` | Editable pstack, Matt, shadcn, and personal skills |
 | `upstream/<source>/` | Unmodified selected snapshots, including MIT licenses |
 | `sources.json` | Repository, branch, subtree, and reviewer for each source |
 | `sources.lock.json` | Commit and subtree hash of each imported snapshot |
@@ -115,6 +120,7 @@ Imported pstack material is copyright 2026 Lauren Tan and licensed under
 [MIT](upstream/pstack/LICENSE). The editable pack retains her notice and Uzair
 Ansar's T3 adaptation notice in [its license](skills/pstack/LICENSE).
 Matt's pack retains his [MIT notice](skills/matt-pocock/LICENSE). The three local
-helpers are authored here rather than imported from either pack.
+helpers are authored here rather than imported from an upstream pack.
+Shadcn retains its [MIT notice](skills/shadcn-ui/LICENSE), also bundled in the installed skill.
 Original code and documentation in this repository are reserved to the author
 unless a separate license is added.
