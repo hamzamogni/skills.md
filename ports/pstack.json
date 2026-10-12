@@ -117,12 +117,12 @@
     "why/references/sources/incident-postmortem.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/why/references/sources/incident-postmortem.md",
-      "upstream_sha256": "a899470f05f86029630a13a2696491cc708ca7b56a6e822a69ff6e954d6ff8cf"
+      "upstream_sha256": "bf2661f1a81c37700884a45b77d6289be0c802b065febced31990e6564510839"
     },
     "why/references/sources/slack.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/why/references/sources/slack.md",
-      "upstream_sha256": "58fee61d024b3700b407e7acbed367944720ff05adfddb6954d36c88368f3ba7"
+      "upstream_sha256": "3bc6309f5c7b26ace3b919dbd7f7b048861dd2020f910fe24f656cc74b3b661c"
     },
     "why/references/sources/datadog.md": {
       "strategy": "p3-rewrite",
@@ -142,7 +142,7 @@
     "why/references/sources/sentry.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/why/references/sources/sentry.md",
-      "upstream_sha256": "e0ed11e474c3d248bc5ac16d37ca1439b2db0253a3413252194556643cf8328a"
+      "upstream_sha256": "2d4f83048eac1df530b399e2aed75dd7c9c18577b7665420aaeb96d0ceb0b702"
     },
     "why/references/sources/linear.md": {
       "strategy": "p3-rewrite",
@@ -152,12 +152,12 @@
     "why/references/sources/code-archaeology.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/why/references/sources/code-archaeology.md",
-      "upstream_sha256": "f6b5c4c3dd4ddc31da446bbbe4d88806e2201f15a76b97b3e44ce25c5862e321"
+      "upstream_sha256": "a4a3970e9db448054aed676f3f7feeee667b4b69f0bd57c8fd72b751be687cc7"
     },
     "principle-encode-lessons-in-structure/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/principle-encode-lessons-in-structure/SKILL.md",
-      "upstream_sha256": "ad12c26209770c52f632d9480c048ac5334ce8e5d6297f83ade59652a56cb3ef"
+      "upstream_sha256": "228963799189f481827d6f28065f278bc2008ffa37030b1234cbd5814d36b9e9"
     },
     "how/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -167,7 +167,7 @@
     "how/references/explorer-prompt.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/how/references/explorer-prompt.md",
-      "upstream_sha256": "a3b44a6e5bb16a6d4d1cac19db8ed5322ffd5f5f5d45baca4e73990ca096f8be"
+      "upstream_sha256": "6300128385ee940fd42ecb84b0e623435440a2dc283eae54ee4a52ba56947ba1"
     },
     "how/references/explainer-prompt.md": {
       "strategy": "p3-rewrite",
@@ -182,7 +182,7 @@
     "principle-guard-the-context-window/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/principle-guard-the-context-window/SKILL.md",
-      "upstream_sha256": "d2cef147862576e3d709b7afc149d85196245e8338b9c7eef337c95fba412b3e"
+      "upstream_sha256": "af0b9dd70b43628ce4a59a4d332e9d9ad055084e460f430e7a757495c627e81a"
     },
     "principle-subtract-before-you-add/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -242,7 +242,7 @@
     "poteto-mode/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/p3-mode/SKILL.md",
-      "upstream_sha256": "03d61d15c5a0f7abc2c558c7323ff3c360dedc2915ebadf3c76c9e872f41cb64"
+      "upstream_sha256": "c5900f379a4582cd2980b45b82c419baffc11929a37e7bb463d77dd0569d37a5"
     },
     "poteto-mode/references/bugbot-triage.md": {
       "strategy": "p3-rewrite",
@@ -302,7 +302,7 @@
     "poteto-mode/playbooks/worktree-cleanup.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/p3-mode/playbooks/worktree-cleanup.md",
-      "upstream_sha256": "fc464dc4121926df1704f483c5feca83717c0a40b4651d3e11bd3aedd89441b6"
+      "upstream_sha256": "ffecceb6d2fa7e07ca5703c968f4b7c5947309ed695d51fc73a55c3da5906480"
     },
     "poteto-mode/playbooks/opening-a-pr.md": {
       "strategy": "p3-rewrite",
@@ -332,7 +332,7 @@
     "poteto-mode/playbooks/babysit.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/p3-mode/playbooks/babysit.md",
-      "upstream_sha256": "a0346c37c2313f36a863b80f66ee7b98059c2242adf74fc7b3e48abdb9ec6f5a"
+      "upstream_sha256": "e261c1ff5581e0f8fc6c686f34de4b535f87473e77beabea7dd8323021214610"
     },
     "poteto-mode/playbooks/orchestrate.md": {
       "strategy": "p3-rewrite",
@@ -372,17 +372,17 @@
     "poteto-mode/scripts/package.json": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "d1f815091209d49763775cc188e8e06ff32d5fec648bffd2272bc25a165e87c3"
+      "upstream_sha256": "fd511a0c01f522e0c781ddd8eccea0e91697a0856c6e6a3261de78a6a0287c72"
     },
     "poteto-mode/scripts/check-plan.mjs": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "4f9432d9989880b6afc2bdda503d5b12a9d07d357ecf31936b7ab5e83bc80523"
+      "upstream_sha256": "e58c3d871b09d477be00628d69dd23ffa6c2e3a1728f5b867a841baa8e90278b"
     },
     "poteto-mode/scripts/worktree-audit.sh": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "95b8530f3c0ccada8cabc4b0727c052fbc85c141531375aaace65c427af8aecc"
+      "upstream_sha256": "9faa9a2534ad64069dec67ac5b5ce1dc23b8fe635ecfd7f6557b1e3ada61fd2f"
     },
     "poteto-mode/scripts/bootstrap.ts": {
       "strategy": "excluded",
@@ -397,12 +397,12 @@
     "poteto-mode/scripts/watch-pr/policy.test.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "a9fedb25feefd1f57ef6a662f80c99018690170a3a8070773a08eaf694d1d3d9"
+      "upstream_sha256": "146acabcfee9b6fa3342358eb0a9504aa65fd081bbc15b10adf9c1c5485067d2"
     },
     "poteto-mode/scripts/watch-pr/github.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "d1bbbafbe8e2c703c84da2029de7f2c4011412512f8cf65a42100f46bcb92c8a"
+      "upstream_sha256": "9ea8de77e019de19929fbe4a86bc88492ffbecd89d6816d9857ed49db904c151"
     },
     "poteto-mode/scripts/watch-pr/types.compile.ts": {
       "strategy": "excluded",
@@ -417,22 +417,22 @@
     "poteto-mode/scripts/watch-pr/github.test.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "0cbce011050522938523e36bb42a260e92b812dcd2076930fa681672ad316b24"
+      "upstream_sha256": "035f4a0f1ab5a17ebf94ad1f7c14d1abd948852be30987c0e9d107b5ea5028ab"
     },
     "poteto-mode/scripts/watch-pr/fakes.test-helper.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "e53e31b7f03068063f53a99a3591b052aaed66e4e2b196b3a364980f60324ab1"
+      "upstream_sha256": "cf0c5ee61b4a73444c1b775cfb6c81a40d312e055dd21a1f5eae6276e54de13f"
     },
     "poteto-mode/scripts/watch-pr/types.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "64ba6221e3bfe61bbb292337d199cdec6309455477280efb060203dba34e0e91"
+      "upstream_sha256": "0cac435294dc85ce1ba755e8e67f6c5ab163dfa252f2722d6e3a2d68c58fec59"
     },
     "poteto-mode/scripts/watch-pr/policy.ts": {
       "strategy": "excluded",
       "reason": "Replaced by native T3 delegation, PR watches, scheduling, and thread/worktree tools",
-      "upstream_sha256": "68d240505852cf23c9b2dea463342e9e61243f486b3cc86c735d140f9ee7be49"
+      "upstream_sha256": "f2a3e31223d05edc05e5473cc3f8f3cb9bd20c202c30c6abe7f21f0f7aee8fbb"
     },
     "poteto-mode/scripts/watch-pr/tsconfig.json": {
       "strategy": "excluded",
@@ -475,8 +475,9 @@
       "upstream_sha256": "d265b0e5b6dc5b89c0407f3387d24462c988e1990a37d5359735137908128c5a"
     },
     "ketchup/SKILL.md": {
-      "strategy": "upstream-retained",
-      "upstream_sha256": "f460a861cf2179808abc24b5588c94709f8cc3e58d4da2e44baf89556f53b587"
+      "strategy": "native-rewrite",
+      "reason": "Upstream visuals rendered with T3 html_preview/html_render and existing preview or device captures",
+      "upstream_sha256": "3b00c552fdb236ecfce85184000814bf62d7c518aac3acd1ba7ea8e02d8f2196"
     },
     "principle-sequence-verifiable-units/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -571,7 +572,7 @@
     "principle-exhaust-the-design-space/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/principle-exhaust-the-design-space/SKILL.md",
-      "upstream_sha256": "8583310d7297b7823d75494faa57b003564d436807febecdecbd8321abe5cf6e"
+      "upstream_sha256": "2de83d99f93f60ec6313455b0bc9aa9f0bfb93dd59f414f403691322db00d4db"
     },
     "principle-migrate-callers-then-delete-legacy-apis/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -621,12 +622,12 @@
     "no-comments/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/no-comments/SKILL.md",
-      "upstream_sha256": "5c5b0882297d704c3a9720c52b7a793c68b013eaf717989f0945624efdfe2b05"
+      "upstream_sha256": "08b9c769040c104ef7fb1902ebac97047edbb89b58c7e113e53c918287b092e6"
     },
     "principle-laziness-protocol/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/principle-laziness-protocol/SKILL.md",
-      "upstream_sha256": "9006579e9e3f33955d17569733db688ae65f22577dc3b21803d219a5a8445aff"
+      "upstream_sha256": "1be6e7a435f26a75a76eb848b9c3d611b9977d0f5822361753244da25ca3ca45"
     },
     "principle-experience-first/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -636,7 +637,7 @@
     "unslop/SKILL.md": {
       "strategy": "p3-rewrite",
       "reference_path": "skills/unslop/SKILL.md",
-      "upstream_sha256": "3126b9e2cf46022f5e0c332e84be5e17a9730669cb3d6ac0a7e5e7e94b1e24fa"
+      "upstream_sha256": "ccab208e315ce05e2fab8eeee2f7879f1289b5c6844840b2d307adf31c79144f"
     },
     "tdd/SKILL.md": {
       "strategy": "p3-rewrite",
@@ -665,6 +666,11 @@
     "poteto-mode/references/agents/poteto-agent.md": {
       "strategy": "support",
       "reference_path": "agents/p3-agent.md"
+    },
+    "poteto-mode/scripts/check-plan.test.ts": {
+      "strategy": "excluded",
+      "reason": "Covered by an excluded prefix",
+      "upstream_sha256": "c80f3ea043b81f219b92c4c8a3af6bdd4f8d32ea596ec15b5b9e0252645f2ae8"
     }
   },
   "path_aliases": {
