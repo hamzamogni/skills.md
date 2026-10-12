@@ -12,11 +12,11 @@ LEGACY = re.compile(
     re.IGNORECASE,
 )
 TOOL = re.compile(
-    r"`((?:t3_|preview_|device_)[a-z0-9_]+|delegate_task|task_status|task_cancel|"
+    r"`((?:t3_|preview_|device_|html_)[a-z0-9_]+|delegate_task|task_status|task_cancel|"
     r"orchestrator_capabilities|watch_pull_request|unwatch_pull_request|"
     r"schedule_task|list_scheduled_tasks|update_scheduled_task|delete_scheduled_task|"
     r"run_scheduled_task_now|create_threads|link_pull_request|unlink_pull_request|"
-    r"list_thread_pull_requests|request_secret)`"
+    r"list_thread_pull_requests|request_secret|read_pull_request_guide|write_pull_request_guides)`"
 )
 HOTSPOTS = re.compile(
     r"Task|delegate|model|provider|worktree|branch|watch|schedule|poll|transcript|"

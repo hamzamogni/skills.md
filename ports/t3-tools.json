@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/pingdotgg/t3code",
-  "commit": "ed0f7b908b2e7b3a22e6fd82a73794c2fe6ee06e",
+  "commit": "d83929ad0bb0d4aec800f12c332de57e873cc7e5",
   "tools": {
     "create_threads": "apps/server/src/mcp/toolkits/orchestrator/tools.ts",
     "delegate_task": "apps/server/src/mcp/toolkits/orchestrator/tools.ts",
@@ -10,6 +10,7 @@
     "device_open": "apps/server/src/mcp/toolkits/device/tools.ts",
     "device_screenshot": "apps/server/src/mcp/toolkits/device/tools.ts",
     "html_preview": "apps/server/src/mcp/toolkits/html/tools.ts",
+    "html_render": "apps/server/src/mcp/toolkits/html/tools.ts",
     "link_pull_request": "apps/server/src/mcp/toolkits/pullRequests/tools.ts",
     "list_scheduled_tasks": "apps/server/src/mcp/toolkits/orchestrator/tools.ts",
     "list_thread_pull_requests": "apps/server/src/mcp/toolkits/pullRequests/tools.ts",
