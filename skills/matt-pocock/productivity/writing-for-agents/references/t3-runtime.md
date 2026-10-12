@@ -23,7 +23,9 @@ Do not adopt shadcn in an existing app unless the task calls for that adoption.
   `delegate_task` with a self-contained brief, `mode: "async"`, goal, absolute input
   paths, exclusive write scope, checks, and expected output. Missing model roles
   inherit the parent by omitting `target`; configured models use actual provider
-  instances and advertised `target.options` IDs and values.
+  instances and advertised `target.options` IDs and values. Capabilities can list
+  an instance the project has disabled. If `delegate_task` rejects it as not enabled
+  for this project, do not retry. Inherit the parent or ask.
 - Retain `taskId`. Do independent work and let completion wake the parent. Use
   `task_status` when a result is needed and `task_cancel` to stop it. Do not poll
   status in a loop. Each fix or review round gets a fresh task. A child receives

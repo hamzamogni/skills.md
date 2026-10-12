@@ -47,6 +47,9 @@ must match the provider instance and model returned by capabilities. Apply effor
 through advertised `target.options` IDs and values, not a guessed `reasoningEffort`
 field or an effort suffix appended to a model name. Do not pass configuration-only
 aliases to the API. Ignore unsupported options explicitly rather than guessing.
+Capabilities can list an instance the project has disabled. If `delegate_task`
+returns `invalid_request` because the instance is not enabled for this project,
+do not retry it. Inherit the parent or ask, and name the configured role.
 
 A delegation call has this shape. Replace the illustrative values with confirmed
 catalog values, and omit `target` entirely to inherit:

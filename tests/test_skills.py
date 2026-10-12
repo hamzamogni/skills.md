@@ -13,6 +13,7 @@ import skills
 import porting
 import seed_t3_port
 import check_upstream
+import t3_inventory
 
 
 class SkillsBehavior(unittest.TestCase):
@@ -182,6 +183,24 @@ class SkillsBehavior(unittest.TestCase):
         self.quiet(skills.merge, self.root, "pstack", continuing=True)
         self.assertIn("Native retained behavior", local.read_text())
         self.assertEqual(self.quiet(porting.report, self.root, "pstack"), [])
+
+    def test_t3_inventory_resolves_constant_tool_names_and_rejects_unknown_ones(self):
+        reference = Path(self.temp.name) / "t3code"
+        tools = reference / "apps/server/src/mcp/toolkits/html/tools.ts"
+        tools.parent.mkdir(parents=True)
+        (reference / "packages/shared/src").mkdir(parents=True)
+        (reference / "packages/shared/src/htmlRender.ts").write_text('export const HTML_RENDER_TOOL_NAME = "html_render";\n')
+        tools.write_text('Tool.make("html_preview", {});\nTool.make(HTML_RENDER_TOOL_NAME, {});\n')
+        skills.run("git", "init", "--quiet", str(reference))
+        skills.run("git", "add", ".", cwd=reference)
+        skills.run("git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                   "commit", "--quiet", "-m", "tools", cwd=reference)
+        self.assertEqual(sorted(t3_inventory.inventory(reference)["tools"]), ["html_preview", "html_render"])
+        tools.write_text('Tool.make(MISSING_TOOL_NAME, {});\n')
+        skills.run("git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+                   "commit", "--quiet", "-am", "unknown", cwd=reference)
+        with self.assertRaisesRegex(ValueError, "Unresolved tool name MISSING_TOOL_NAME"):
+            t3_inventory.inventory(reference)
 
     def test_seed_aliases_bundle_paths_and_original_invocation_settings(self):
         original = b"---\nname: poteto-mode\ndescription: Native\n---\nBody\n"

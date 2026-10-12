@@ -11,12 +11,21 @@ def inventory(reference):
     if run("git", "status", "--porcelain", cwd=reference).stdout:
         raise ValueError("The T3 reference checkout must be clean")
     revision = run("git", "rev-parse", "HEAD", cwd=reference).stdout.decode().strip()
+    constants = {}
+    for root in ("apps/server/src", "packages"):
+        for path in sorted((reference / root).rglob("*.ts")):
+            for constant, value in re.findall(r'export const ([A-Z0-9_]+) = "([a-z0-9_]+)"', path.read_text()):
+                constants.setdefault(constant, value)
     tools = {}
     for path in sorted((reference / "apps/server/src/mcp").rglob("tools.ts")):
-        for name in re.findall(r'Tool\.make\(\s*"([a-z0-9_]+)"', path.read_text()):
+        source = path.relative_to(reference).as_posix()
+        for literal, constant in re.findall(r'Tool\.make\(\s*(?:"([a-z0-9_]+)"|([A-Z0-9_]+)\b)?', path.read_text()):
+            name = literal or constants.get(constant)
+            if not name:
+                raise ValueError(f"Unresolved tool name {constant or '(expression)'} in {source}")
             if name in tools:
                 raise ValueError(f"Duplicate tool definition: {name}")
-            tools[name] = path.relative_to(reference).as_posix()
+            tools[name] = source
     if not tools:
         raise ValueError("No T3 tool definitions found; inspect changed source layout before updating")
     return {"repository": "https://github.com/pingdotgg/t3code", "commit": revision,

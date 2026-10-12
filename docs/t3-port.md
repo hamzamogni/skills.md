@@ -3,7 +3,7 @@
 The editable pack keeps 52 upstream skills, including `poteto-mode`,
 `poteto-help`, and `setup-pstack`. It builds on native rewrites from
 [p3-stack at 09909ebb](https://github.com/uzairansaruzi/p3-stack/tree/09909ebb5c0125e27fad3e57d96b81e832696d69).
-The upstream-only `ketchup` skill remains vendor-neutral. Worker and comment-review
+The upstream-only `ketchup` skill keeps upstream's text and adds one T3 paragraph for `html_render` visuals and existing captures. Worker and comment-review
 briefs are bundled in `poteto-mode/references/agents`.
 
 ## Runtime mapping
