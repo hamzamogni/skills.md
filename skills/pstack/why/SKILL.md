@@ -12,7 +12,7 @@ Investigate the motivation and intent behind code.
 
 Companion to the `how` skill. `how` answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Each delegation below names a role line in `.pstack-models.md`. Resolve it through `orchestrator_capabilities` and pass that provider and model to `delegate_task`. Never hardcode a slug. If the line or the file is missing, use the session default and say so.
+Each delegation below names a role line in `.pstack-models.md`. Pass its provider instance and model to `delegate_task`. Never hardcode a slug. If the line or the file is missing, use the session default and say so.
 
 ## Operating Posture
 

@@ -35,7 +35,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch all reviewers in a single turn, one `delegate_task` per reviewer with `mode: "async"`. Use the `interrogate reviewers` line in `.pstack-models.md`, one reviewer per entry, labeled Reviewer A, B, C, and so on for the configured entry count. Resolve each entry's provider and model through `orchestrator_capabilities`. If the line is missing, run `setup-pstack` first.
+Launch all reviewers in a single turn, one `delegate_task` per reviewer with `mode: "async"`. Use the `interrogate reviewers` line in `.pstack-models.md`, one reviewer per entry, labeled Reviewer A, B, C, and so on for the configured entry count. Pass each entry's provider instance and model to `delegate_task`. If the line is missing, run `setup-pstack` first.
 
 For each reviewer:
 - The brief is self-contained. A delegated reviewer gets only the brief, never your context.

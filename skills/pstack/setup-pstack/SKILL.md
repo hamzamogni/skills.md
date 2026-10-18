@@ -34,7 +34,7 @@ When the catalog exposes reasoning options for a model, set each real entry's ef
 
 **(c) Show the roles and confirm.** Show every role with its model, marking any entry not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` (the role runs on the parent thread's model, so omit `target` in `delegate_task`) as the options. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one `delegate_task` runs per entry, `inherit-parent` entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena selects one value from it whose provider differs from the parent's when possible. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
 
-Translate configured effort into the exact advertised `target.options` ID and value when calling a tool. The parenthesized token in this file is configuration, never a model suffix or top-level API field. If the catalog uses another option shape, record that shape rather than guessing a ladder.
+Record each effort as the exact advertised option ID and value, such as `effort=high` or `reasoningEffort=high`, because the ID differs by provider and delegations read it from this file without calling `orchestrator_capabilities`. The parenthesized token in this file is configuration, never a model suffix or top-level API field. If the catalog uses another option shape, record that shape rather than guessing a ladder.
 
 ### 4. Validate
 
@@ -42,27 +42,27 @@ Every real entry written must be in the `orchestrator_capabilities` result, unde
 
 ### 5. Write the file
 
-Write `.pstack-models.md` with a `# budget` line with the chosen label and its target effort, and one line per role, using the same labels poteto-mode uses. Write each entry as `<providerInstanceId>/<model>`, followed by its effort option in parentheses when step 3(b) set one. Overwrite the whole file so re-runs stay idempotent. Shape:
+Write `.pstack-models.md` with a `# budget` line with the chosen label and its target effort, and one line per role, using the same labels poteto-mode uses. Write each entry as `<providerInstanceId>/<model>`, followed by its effort option as `(<optionId>=<value>)` when step 3(b) set one. Overwrite the whole file so re-runs stay idempotent. Shape:
 
 ```
 # pstack model configuration. One line per role. Delete a line to inherit the parent model.
 # `inherit-parent` as a value: the role runs on the parent thread's model (omit delegate_task target). Entries in a panel list still count toward its fan-out.
 # budget: unlimited (max)
-feature, refactoring: <providerInstanceId>/<model> (<effort>)
-bug-fix: <providerInstanceId>/<model> (<effort>)
-perf-issue: <providerInstanceId>/<model> (<effort>)
-hillclimb: <providerInstanceId>/<model> (<effort>)
-judgment and prose: <providerInstanceId>/<model> (<effort>)
-hardest tasks: <providerInstanceId>/<model> (<effort>)
-how explorer: <providerInstanceId>/<model> (<effort>)
-how explainer: <providerInstanceId>/<model> (<effort>)
-why investigators: <providerInstanceId>/<model> (<effort>)
-why synthesizer: <providerInstanceId>/<model> (<effort>)
-reflect tooling: <providerInstanceId>/<model> (<effort>)
-reflect judgment, divergent, synthesizer: <providerInstanceId>/<model> (<effort>)
+feature, refactoring: <providerInstanceId>/<model> (<optionId>=<effort>)
+bug-fix: <providerInstanceId>/<model> (<optionId>=<effort>)
+perf-issue: <providerInstanceId>/<model> (<optionId>=<effort>)
+hillclimb: <providerInstanceId>/<model> (<optionId>=<effort>)
+judgment and prose: <providerInstanceId>/<model> (<optionId>=<effort>)
+hardest tasks: <providerInstanceId>/<model> (<optionId>=<effort>)
+how explorer: <providerInstanceId>/<model> (<optionId>=<effort>)
+how explainer: <providerInstanceId>/<model> (<optionId>=<effort>)
+why investigators: <providerInstanceId>/<model> (<optionId>=<effort>)
+why synthesizer: <providerInstanceId>/<model> (<optionId>=<effort>)
+reflect tooling: <providerInstanceId>/<model> (<optionId>=<effort>)
+reflect judgment, divergent, synthesizer: <providerInstanceId>/<model> (<optionId>=<effort>)
 arena runners: <entry>, <entry>, <entry>
 arena cross-judge pool: <entry>, <entry>, <entry>
-swarm workers: <providerInstanceId>/<model> (<effort>)
+swarm workers: <providerInstanceId>/<model> (<optionId>=<effort>)
 architect runners: <entry>, <entry>, <entry>
 interrogate reviewers: <entry>, <entry>, <entry>
 ```
