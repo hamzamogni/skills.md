@@ -10,7 +10,7 @@ Read the [T3 runtime contract](references/t3-runtime.md) before executing this s
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Every spawn below is a `delegate_task` with a self-contained brief; the child gets only the brief, never this conversation. Each brief says it is read-only: inspect only, no writes, no git commands. Resolve each role's model from `.pstack-models.md` via `orchestrator_capabilities`. Never hardcode a slug. If the role line is missing, inherit the parent model.
+Every spawn below is a `delegate_task` with a self-contained brief; the child gets only the brief, never this conversation. Each brief says it is read-only: inspect only, no writes, no git commands. Resolve each role's model from `.pstack-models.md`. Never hardcode a slug. If the role line is missing, inherit the parent model.
 
 ## Step 1. Assess Complexity
 

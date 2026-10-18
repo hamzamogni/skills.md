@@ -13,7 +13,8 @@ their discovered installed paths. Repository category folders are not installed.
    runtime contract and finds bundled references. Discovery alone proves neither.
 2. Run `setup-pstack`. Check proposed models against `orchestrator_capabilities`
    and inspect `.pstack-models.md`. Missing roles and `inherit-parent` should omit
-   `target` in delegation. Effort uses advertised option IDs and values.
+   `target` in delegation. Effort is recorded as `(<optionId>=<value>)` with
+   advertised IDs, and a configured role delegates without a capabilities call.
 3. Ask for one read-only delegated check: read a named fixture containing `2 + 3`,
    return `5`, and change no files. Check its absolute input path, returned task ID,
    and completion without an agent polling loop. Cancel a disposable second task

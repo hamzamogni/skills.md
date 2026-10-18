@@ -17,7 +17,8 @@ UI behavior in worker briefs. Give one worker ownership of shared theme and
 component files. Verify loading, empty, error, keyboard, and responsive behavior
 in the running app. Adopting a new component system must be part of the user's task.
 
-Call `orchestrator_capabilities` when delegation or model selection is needed.
+Call `orchestrator_capabilities` only in the cases listed under **Delegate a
+bounded task**. Its result is large; reuse it for the rest of the context window.
 Use the actual T3 MCP catalog and input schemas exposed in the current session.
 Tool names below are public names; a provider may expose a namespaced spelling or
 require tool discovery. Do not call a guessed namespace or invent missing tools.
@@ -42,17 +43,25 @@ instructions or an absolute path the child can actually read. Review its output.
 
 Resolve `.pstack-models.md` in the target project's root, then
 `~/.agents/.pstack-models.md`. Missing roles inherit the parent model. The
-`inherit-parent`, `auto`, and `inherit` aliases all omit `target`. Configured entries
-must match the provider instance and model returned by capabilities. Apply effort
-through advertised `target.options` IDs and values, not a guessed `reasoningEffort`
-field or an effort suffix appended to a model name. Do not pass configuration-only
-aliases to the API. Ignore unsupported options explicitly rather than guessing.
-Capabilities can list an instance the project has disabled. If `delegate_task`
-returns `invalid_request` because the instance is not enabled for this project,
-do not retry it. Inherit the parent or ask, and name the configured role.
+`inherit-parent`, `auto`, and `inherit` aliases all omit `target`. A configured
+entry `<providerInstanceId>/<model>` is the target: split it at the first slash and
+pass both values directly. Its effort token `(<optionId>=<value>)` becomes
+`target.options: {"<optionId>": "<value>"}`. A bare token such as `(high)` does not
+name the option ID, which differs by provider. Map it through a capabilities result
+already in context; otherwise omit `options` so the target runs at its default, and
+tell the user once that re-running `setup-pstack` records the IDs. Never guess a
+`reasoningEffort` field or append effort to a model name. Do not pass
+configuration-only aliases to the API.
 
-A delegation call has this shape. Replace the illustrative values with confirmed
-catalog values, and omit `target` entirely to inherit:
+Call `orchestrator_capabilities` only when you need a model the file does not name,
+such as a skill's fallback or a different provider family, or when `delegate_task`
+rejects a configured target. Capabilities can list an instance the project has
+disabled. If `delegate_task` returns `invalid_request` because the instance is not
+enabled for this project, do not retry that target. Use the skill's fallback, else
+inherit the parent or ask, and name the configured role.
+
+A delegation call has this shape. Replace the illustrative values with the role line's
+values, and omit `target` entirely to inherit:
 
 ```json
 {
@@ -61,9 +70,9 @@ catalog values, and omit `target` entirely to inherit:
   "role": "review",
   "mode": "async",
   "target": {
-    "providerInstanceId": "<confirmed-instance>",
-    "model": "<confirmed-model>",
-    "options": {"<advertised-option-id>": "<advertised-value>"}
+    "providerInstanceId": "<configured-instance>",
+    "model": "<configured-model>",
+    "options": {"<configured-option-id>": "<configured-value>"}
   },
   "clientRequestId": "<stable-id-for-this-attempt>"
 }

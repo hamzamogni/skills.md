@@ -28,6 +28,10 @@ state to their parent for watching. The long-running playbooks retain their gate
 Run `setup-pstack` in T3 to choose roles from live capabilities. It writes the
 project's `.pstack-models.md`, or a global file when requested. Setup is optional;
 unspecified roles inherit the parent model.
+Each entry records its effort with the provider's option ID, as
+`(<optionId>=<value>)`, so delegation takes its target from the file. Keep that
+when porting: `orchestrator_capabilities` returns about 21,000 characters, and the
+contract calls it only for a model the file does not name or a rejected target.
 
 ## Files that preserve history
 

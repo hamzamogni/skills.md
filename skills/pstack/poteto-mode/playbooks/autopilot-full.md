@@ -13,7 +13,7 @@ Autopilot-stack builds a reviewable chain when landing authority is withheld.
 1. **Assign ownership and scope.** The ordinary parent thread owns the PR queue,
    watches, verdicts, and authorized merges. Dispatch one bounded `delegate_task`
    per implementation round, `mode: "async"`, using the configured role from
-   `.pstack-models.md` resolved through `orchestrator_capabilities`. A user-requested
+   `.pstack-models.md`. A user-requested
    standalone owner may carry a PR's full lifecycle in its own ordinary thread,
    with `t3_thread_launch` binding its workspace before work starts. A delegated
    child is not a standing owner and cannot arm a PR watch.
