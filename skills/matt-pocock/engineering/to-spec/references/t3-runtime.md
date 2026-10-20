@@ -5,7 +5,10 @@ project's tracker, glossary, ADR, and document conventions from
 `setup-matt-pocock-skills`. Read installed `SKILL.md` files when a workflow names
 another skill. Prefer this project collection's source path over a same-named
 global installation. Use the catalog's actual absolute `SKILL.md` paths for other
-skills; repository categories are not part of the installed layout. Resolve bundled
+skills; repository categories are not part of the installed layout. A skill with
+`disable-model-invocation: true` is missing from the catalog; read it at
+`../<name>/SKILL.md` from the current skill's directory, since every skill installs
+as a sibling. Resolve bundled
 references relative to the file that names them before supplying absolute paths to a child. A dedicated Skill tool is
 not required or assumed.
 
