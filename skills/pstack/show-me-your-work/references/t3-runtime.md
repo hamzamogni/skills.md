@@ -5,7 +5,9 @@ Read this contract before executing a skill. Resolve bundled paths relative to
 the file that names them, then put absolute paths into worker briefs. The installed
 skill directories may be copied or linked from another checkout. Resolve other
 skills by name through the session's skill catalog and use its actual absolute
-`SKILL.md` paths. Prefer this collection's project entry over a same-named global
+`SKILL.md` paths. A skill with `disable-model-invocation: true` is missing from the
+catalog; read it at `../<name>/SKILL.md` from the current skill's directory, since
+every skill installs as a sibling. Prefer this collection's project entry over a same-named global
 installation; do not infer repository category folders from an installed path.
 
 ## Discover the session before using it
